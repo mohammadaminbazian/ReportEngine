@@ -62,15 +62,15 @@ const header = new HeaderDefinition({
     repeat: true,
     height:40,
     margin:{
-        top:5,
-        bottom:5
+        top:1,
+        bottom:1
     },
 
     padding:{
-        top:2,
-        bottom:2,
-        left:3,
-        right:3
+        top:1,
+        bottom:1,
+        left:1,
+        right:1
     },
 
     sections:{
@@ -103,11 +103,12 @@ const header = new HeaderDefinition({
 
                     source: "context",
 
-                    field: "company"
+                    field: "company",
+                    showLabel:true
 
                 },
 
-                align: "left"
+                align: "center"
 
             },
 
@@ -118,11 +119,12 @@ const header = new HeaderDefinition({
 
                     source: "context",
 
-                    field: "branch"
+                    field: "branch",
+                    showLabel:true
 
                 },
 
-                align: "left"
+                align: "center"
 
             },
 
@@ -133,7 +135,8 @@ const header = new HeaderDefinition({
 
                     source: "context",
 
-                    field: "reportUser"
+                    field: "reportUser",
+                    showLabel:true
 
                 },
 
@@ -178,7 +181,8 @@ const header = new HeaderDefinition({
 
                     source: "context",
 
-                    field: "reportDate"
+                    field: "reportDate",
+                    showLabel:true
 
                 },
 

@@ -72,7 +72,13 @@ export class HtmlRenderer {
 
                     page,
 
-                    context
+                    {
+                        ...context,
+
+                        measure:
+                        runtimeReport.measure
+
+                    }
 
                 )
 
@@ -107,15 +113,26 @@ export class HtmlRenderer {
 
 <section
 class="report-page"
-data-page="${page.number}">
+data-page="${page.number}"
+style="
+font-family:${context.measure?.font ?? 'Arial'};
+font-size:${context.measure?.fontSize ?? 10}pt;
+">
+
 
 
 ${this.renderHeader(
-
             context.header,
+            {
+                ...context,
 
-            context
+                pageNumber:
+                page.number,
 
+                totalPages:
+                page.totalPages
+
+            }
         )}
 
 
