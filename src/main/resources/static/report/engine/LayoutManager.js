@@ -2,10 +2,13 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : LayoutManager.js
- * Version   : 3.0.0
+ * Version   : 5.0.0
  *
- * Description :
- *      Calculates report layout.
+ * Description:
+ *      Calculates physical report layout.
+ *
+ * No Rendering.
+ * No Pagination.
  *
  * ------------------------------------------------------------
  */
@@ -14,9 +17,10 @@
 export class LayoutManager {
 
 
-    #pageDefinition;
 
-    #measureDefinition;
+    #page;
+
+    #measure;
 
     #header;
 
@@ -26,22 +30,25 @@ export class LayoutManager {
 
     constructor({
 
-        pageDefinition,
+                    pageDefinition,
 
-        measureDefinition,
+                    measureDefinition,
 
-        header=null,
+                    header = null,
 
-        footer=null
-
-    }){
+                    footer = null
 
 
-        this.#pageDefinition =
+                }){
+
+
+        this.#page =
             pageDefinition;
 
-        this.#measureDefinition =
+
+        this.#measure =
             measureDefinition;
+
 
         this.#header =
             header;
@@ -53,24 +60,70 @@ export class LayoutManager {
 
     }
 
+
+
+
+
+
     calculate(){
 
+
+
         const pageSize =
-            this.#pageDefinition.getSize();
+
+            this.#page.getSize();
+
+
+
+
+        const spacing =
+
+            this.#page.spacing;
+
+
+
 
 
         const margin =
-            this.#pageDefinition.margin;
 
-        const contentWidth =
-            pageSize.width
+            spacing.margin;
+
+
+
+
+        const pageWidth =
+
+            pageSize.width;
+
+
+
+        const pageHeight =
+
+            pageSize.height;
+
+
+
+
+
+
+        //------------------------------------------
+        // Printable
+        //------------------------------------------
+
+
+        const printableWidth =
+
+            pageWidth
             -
             margin.left
             -
             margin.right;
 
-        const contentHeight =
-            pageSize.height
+
+
+        const printableHeight =
+
+            pageHeight
             -
             margin.top
             -
@@ -78,13 +131,190 @@ export class LayoutManager {
 
 
 
-        const headerHeight =
-            this.#getHeaderHeight();
 
+
+
+
+
+        //------------------------------------------
+        // Header
+        //------------------------------------------
+
+
+        const headerHeight =
+
+            this.#header
+
+                ?
+
+                this.#header.getHeight()
+
+                :
+
+                0;
+
+
+
+
+        const headerTop =
+
+            margin.top
+
+            +
+
+            spacing.header.marginTop;
+
+
+
+
+
+        const headerBottom =
+
+            headerTop
+
+            +
+
+            headerHeight
+
+            +
+
+            spacing.header.marginBottom;
+
+
+
+
+
+
+
+
+        //------------------------------------------
+        // Footer
+        //------------------------------------------
 
 
         const footerHeight =
-            this.#getFooterHeight();
+
+            this.#footer
+
+                ?
+
+                this.#footer.getHeight()
+
+                :
+
+                0;
+
+
+
+
+        const footerBottom =
+
+            pageHeight
+
+            -
+
+            margin.bottom
+
+            -
+
+            spacing.footer.marginBottom;
+
+
+
+
+
+        const footerTop =
+
+            footerBottom
+
+            -
+
+            footerHeight
+
+            -
+
+            spacing.footer.marginTop;
+
+
+
+
+
+
+
+
+
+        //------------------------------------------
+        // Body
+        //------------------------------------------
+
+
+        const bodyTop =
+
+            headerBottom;
+
+
+
+        const bodyBottom =
+
+            footerTop;
+
+
+
+
+        const bodyHeight =
+
+            Math.max(
+
+                0,
+
+                bodyBottom - bodyTop
+
+            );
+
+
+
+
+
+
+
+
+        //------------------------------------------
+        // Table Area
+        //------------------------------------------
+
+
+        const content =
+
+            spacing.content;
+
+
+
+        const tableLeft =
+
+            margin.left
+
+            +
+
+            content.paddingLeft;
+
+
+
+
+        const tableWidth =
+
+            printableWidth
+
+            -
+
+            content.paddingLeft
+
+            -
+
+            content.paddingRight;
+
+
+
+
 
 
 
@@ -92,58 +322,73 @@ export class LayoutManager {
         return {
 
 
-            pageWidth:
-                pageSize.width,
+
+            pageWidth,
+
+            pageHeight,
 
 
-            pageHeight:
-                pageSize.height,
 
+            printableWidth,
 
-            contentWidth,
+            printableHeight,
 
-
-            contentHeight,
-
-
-            headerHeight,
-
-
-            footerHeight,
-
-
-            bodyHeight:
-
-                contentHeight
-                -
-                headerHeight
-                -
-                footerHeight,
 
 
             margin,
 
+
+
+            headerTop,
+
+            headerHeight,
+
+            headerBottom,
+
+
+
+            footerTop,
+
+            footerHeight,
+
+            footerBottom,
+
+
+
+            bodyTop,
+
+            bodyBottom,
+
+            bodyHeight,
+
+
+
+            tableLeft,
+
+            tableWidth,
+
+
+
             font:
-                this.#measureDefinition.font,
+
+            this.#measure.font,
+
 
             fontSize:
-                this.#measureDefinition.fontSize,
+
+            this.#measure.fontSize,
+
 
             lineHeight:
-                this.#measureDefinition.lineHeight
+
+            this.#measure.lineHeight
 
 
         };
 
 
+
     }
 
-    #getHeaderHeight(){
-        return this.#header?.getHeight() ?? 0;
-    }
 
-    #getFooterHeight(){
-        return this.#footer?.getHeight() ?? 0;
-    }
-   
 }

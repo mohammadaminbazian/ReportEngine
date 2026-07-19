@@ -9,60 +9,56 @@
  * ------------------------------------------------------------
  */
 
-import { ReportDefinition } from "../model/ReportDefinition.js";
-import { PageDefinition } from "../model/PageDefinition.js";
-import { MeasureDefinition } from "../model/MeasureDefinition.js";
-import { HeaderDefinition} from "../model/HeaderDefinition.js";
-import { FooterDefinition} from "../model/FooterDefinition.js";
-import { TableDefinition } from "../model/TableDefinition.js";
-import { ColumnDefinition } from "../model/ColumnDefinition.js";
+import {ReportDefinition} from "../model/ReportDefinition.js";
+import {PageDefinition} from "../model/PageDefinition.js";
+import {MeasureDefinition} from "../model/MeasureDefinition.js";
+import {HeaderDefinition} from "../model/HeaderDefinition.js";
+import {FooterDefinition} from "../model/FooterDefinition.js";
+import {TableDefinition} from "../model/TableDefinition.js";
+import {ColumnDefinition} from "../model/ColumnDefinition.js";
 
 const page = new PageDefinition({
-    size:"A4",//"A4",
-    orientation:"LANDSCAPE",//"LANDSCAPE","PORTRAIT",
-    margin:{
-        top:1,
-        right:3,
-        bottom:1,
-        left:2
+    size: "A4",//"A4",
+    orientation: "LANDSCAPE",//"LANDSCAPE","PORTRAIT",
+    margin: {
+        top: 1,
+        right: 3,
+        bottom: 1,
+        left: 2
     }
 });
-
-
-
-
 
 
 const measure =
 
-new MeasureDefinition({
+    new MeasureDefinition({
 
-    font:"B Nazanin",//"IRANYekanXFaNum",//"B Nazanin", 
+        font: "B Nazanin",//"IRANYekanXFaNum",//"B Nazanin",
 
-    fontSize: 10,
+        fontSize: 10,
 
-    lineHeight: 4,
+        lineHeight: 4,
 
-    pageSizeModel : page.size + " " +page.orientation,
+        pageSizeModel: page.size + " " + page.orientation,
 
-    row:{
-        
-        baseHeight:4,
+        row: {
 
-        headerHeight:4
+            baseHeight: 4,
 
-    }
+            headerHeight: 4
+
+        }
 
 
-});
+    });
 
 
 const header = new HeaderDefinition({
 
     repeat: true,
 
-    sections:{
-       top: [
+    sections: {
+        top: [
 
             {
                 type: "text",
@@ -79,113 +75,113 @@ const header = new HeaderDefinition({
 
             }
 
-        ],  
-    middle: {
-
-        right: [
-
-            {
-                type: "text",
-
-                binding: {
-
-                    source: "context",
-
-                    field: "company"
-
-                },
-
-                align: "left"
-
-            },
-
-            {
-                type: "text",
-
-                binding: {
-
-                    source: "context",
-
-                    field: "branch"
-
-                },
-
-                align: "left"
-
-            },
-
-            {
-                type: "text",
-
-                binding: {
-
-                    source: "context",
-
-                    field: "reportUser"
-
-                },
-
-                align: "left"
-
-            }
-
         ],
+        middle: {
 
-        center: [
+            right: [
 
-            {
-                type: "logo",
+                {
+                    type: "text",
 
-                src:  "./images/mel_logo.jpg",
+                    binding: {
 
-                width: 15,
+                        source: "context",
 
-                height: 15,
+                        field: "company"
 
-                fit: "contain"
+                    },
 
-            }
-
-           /*,{
-
-                type: "title",
-
-                value: "گزارش فروش"
-
-            }*/
-
-        ],
-
-        left: [
-
-            {
-
-                type: "text",
-
-                binding: {
-
-                    source: "context",
-
-                    field: "reportDate"
+                    align: "left"
 
                 },
 
-                align: "right"
+                {
+                    type: "text",
 
-            },
+                    binding: {
 
-            {
+                        source: "context",
 
-                type: "pageNumber",
-                
-                align: "right"
+                        field: "branch"
 
-            }
+                    },
 
-        ]
+                    align: "left"
 
-    },
-    bottom: [
+                },
+
+                {
+                    type: "text",
+
+                    binding: {
+
+                        source: "context",
+
+                        field: "reportUser"
+
+                    },
+
+                    align: "left"
+
+                }
+
+            ],
+
+            center: [
+
+                {
+                    type: "logo",
+
+                    src: "./images/mel_logo.jpg",
+
+                    width: 15,
+
+                    height: 15,
+
+                    fit: "contain"
+
+                }
+
+                /*,{
+
+                     type: "title",
+
+                     value: "گزارش فروش"
+
+                 }*/
+
+            ],
+
+            left: [
+
+                {
+
+                    type: "text",
+
+                    binding: {
+
+                        source: "context",
+
+                        field: "reportDate"
+
+                    },
+
+                    align: "right"
+
+                },
+
+                {
+
+                    type: "pageNumber",
+
+                    align: "right"
+
+                }
+
+            ]
+
+        },
+        bottom: [
 
             {
                 type: "text",
@@ -203,10 +199,9 @@ const header = new HeaderDefinition({
             }
 
         ]
-    
 
-    
-    } 
+
+    }
 });
 
 
@@ -236,66 +231,66 @@ const footer = new FooterDefinition({
 });
 
 const table = new TableDefinition({
-     showHeader:true,
+    showHeader: true,
 
-    columns:[
-
-        new ColumnDefinition({
-
-            field:"id",
-
-            title:"شماره",
-
-            width:10,
-
-            thAlign:"center",
-
-            tdAlign:"center"
-
-        }),
+    columns: [
 
         new ColumnDefinition({
-            
 
-            field:"customer",
+            field: "id",
 
-            title:"مشتری",
+            title: "شماره",
 
-            width:30,
+            width: 10,
 
-            thAlign:"center",
+            thAlign: "center",
 
-            tdAlign:"right"
+            tdAlign: "center"
 
         }),
 
         new ColumnDefinition({
 
-            field:"description",
 
-            title:"شرح",
+            field: "customer",
 
-            width:90,
+            title: "مشتری",
 
-            thAlign:"center",
+            width: 30,
 
-            tdAlign:"right"
+            thAlign: "center",
+
+            tdAlign: "right"
 
         }),
 
         new ColumnDefinition({
 
-            field:"amount",
+            field: "description",
 
-            title:"مبلغ",
+            title: "شرح",
 
-            width:30,
+            width: 90,
 
-            type:"number",
+            thAlign: "center",
 
-            thAlign:"center",
+            tdAlign: "right"
 
-            tdAlign:"center"
+        }),
+
+        new ColumnDefinition({
+
+            field: "amount",
+
+            title: "مبلغ",
+
+            width: 30,
+
+            type: "number",
+
+            thAlign: "center",
+
+            tdAlign: "center"
 
         })
 
@@ -305,7 +300,7 @@ const table = new TableDefinition({
 
 const invoiceReport = new ReportDefinition({
 
-    name:"invoiceReport",
+    name: "invoiceReport",
 
     page,
 

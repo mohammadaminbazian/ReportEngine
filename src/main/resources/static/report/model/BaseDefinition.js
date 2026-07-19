@@ -2,22 +2,26 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : BaseDefinition.js
- * Version   : 2.0.0
+ * Version   : 3.0.0
+ *
  * Description :
  *      Base class for all report definitions.
  *
- *      Provides common definition behavior.
+ * Responsibilities
+ *      ✔ Metadata
+ *      ✔ Validation Contract
+ *      ✔ Clone
+ *      ✔ Serialization
+ *      ✔ Utility Methods
+ *      ✔ Immutable Helpers
  *
- *      No layout calculation.
- *      No rendering.
- *      No pagination.
+ * This class contains NO layout logic.
+ * This class contains NO rendering logic.
  *
  * ------------------------------------------------------------
  */
 
-
 export class BaseDefinition {
-
 
     //--------------------------------------------------
     // Private Fields
@@ -25,27 +29,23 @@ export class BaseDefinition {
 
     #metadata;
 
-
-
     //--------------------------------------------------
     // Constructor
     //--------------------------------------------------
 
     constructor(metadata = {}) {
 
-
-        this.#metadata = {
+        this.#metadata = Object.freeze({
 
             createdAt: new Date(),
 
+            version: "1.0",
+
             ...metadata
 
-        };
-
+        });
 
     }
-
-
 
     //--------------------------------------------------
     // Metadata
@@ -57,14 +57,11 @@ export class BaseDefinition {
 
     }
 
-
-
     //--------------------------------------------------
-    // Validation
+    // Validation Contract
     //--------------------------------------------------
 
     validate() {
-
 
         return {
 
@@ -74,17 +71,13 @@ export class BaseDefinition {
 
         };
 
-
     }
 
-
-
     //--------------------------------------------------
-    // Convert To JSON
+    // JSON
     //--------------------------------------------------
 
     toJSON() {
-
 
         return {
 
@@ -92,64 +85,90 @@ export class BaseDefinition {
 
         };
 
-
     }
 
-
-
     //--------------------------------------------------
-    // Clone Definition
+    // Clone
     //--------------------------------------------------
 
     clone() {
 
-
-        return Object.assign(
-
-            Object.create(
-                Object.getPrototypeOf(this)
-            ),
-
-            this
-
-        );
-
+        return structuredClone(this);
 
     }
 
-
-
     //--------------------------------------------------
-    // Utility
+    // Helpers
     //--------------------------------------------------
+
+    isNull(value) {
+
+        return value === null;
+
+    }
+
+    isUndefined(value) {
+
+        return value === undefined;
+
+    }
 
     isEmpty(value) {
 
+        return value === null ||
 
-        return (
-
-            value === null ||
-
-            value === undefined
-
-        );
-
+            value === undefined;
 
     }
 
+    isNumber(value) {
 
+        return typeof value === "number"
+
+            &&
+
+            !Number.isNaN(value);
+
+    }
+
+    isString(value) {
+
+        return typeof value === "string";
+
+    }
 
     //--------------------------------------------------
-    // String Representation
+    // Safe Value
+    //--------------------------------------------------
+
+    value(value, defaultValue) {
+
+        return this.isEmpty(value)
+
+            ? defaultValue
+
+            : value;
+
+    }
+
+    //--------------------------------------------------
+    // Freeze Helper
+    //--------------------------------------------------
+
+    freeze(object) {
+
+        return Object.freeze(object);
+
+    }
+
+    //--------------------------------------------------
+    // String
     //--------------------------------------------------
 
     toString() {
 
-
         return this.constructor.name;
 
-
     }
-
 
 }

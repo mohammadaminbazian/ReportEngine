@@ -2,80 +2,130 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : FooterDefinition.js
- * Version   : 3.0.0
+ * Version   : 5.0.0
  *
- * Description :
- *      Defines report footer structure.
- *
- * Supports:
- *      - repeat footer
- *      - last page only
- *      - dynamic bindings
+ * Description:
+ *      Defines report footer.
  *
  * ------------------------------------------------------------
  */
 
 
-export class FooterDefinition {
+import { BaseDefinition } from "./BaseDefinition.js";
 
 
-    constructor(config = {}) {
+export class FooterDefinition extends BaseDefinition {
 
 
-        //--------------------------------------------------
-        // Height
-        //--------------------------------------------------
+
+    constructor({
+
+                    height = 15,
+
+                    repeat = false,
+
+                    lastPageOnly = false,
+
+                    visible = true,
+
+                    reserveSpace = true,
+
+                    rows = [],
+
+                    metadata = {}
+
+
+                } = {}){
+
+
+        super(metadata);
+
+
 
         this.height =
-            config.height ?? 15;
+            height;
 
 
-
-        //--------------------------------------------------
-        // Render rules
-        //--------------------------------------------------
 
         this.repeat =
-            config.repeat ?? false;
+            repeat;
+
 
 
         this.lastPageOnly =
-            config.lastPageOnly ?? false;
+            lastPageOnly;
 
 
 
-        //--------------------------------------------------
-        // Footer rows
-        //--------------------------------------------------
+        this.visible =
+            visible;
+
+
+
+        this.reserveSpace =
+            reserveSpace;
+
+
 
         this.rows =
-            config.rows ?? [];
+            rows;
 
 
 
     }
 
+
+
+
+
+
+
     //--------------------------------------------------
-    // Decide rendering
+    // Render Decision
     //--------------------------------------------------
 
-    shouldRender(pageNumber,totalPages){
+    shouldRender(
+
+        pageNumber,
+
+        totalPages
+
+    ){
+
+
+
+        if(!this.visible){
+
+            return false;
+
+        }
+
+
+
 
         if(this.repeat){
+
             return true;
+
         }
+
+
+
+
 
         if(this.lastPageOnly){
 
 
             return (
+
                 pageNumber === totalPages
+
             );
 
 
         }
 
-       
+
 
         return false;
 
@@ -86,8 +136,43 @@ export class FooterDefinition {
 
 
 
+
+
+
     //--------------------------------------------------
-    // Add row
+    // Layout Height
+    //--------------------------------------------------
+
+    getHeight(){
+
+
+        if(
+
+            this.reserveSpace
+
+        ){
+
+
+            return this.height;
+
+
+        }
+
+
+
+        return 0;
+
+
+    }
+
+
+
+
+
+
+
+    //--------------------------------------------------
+    // Rows
     //--------------------------------------------------
 
     addRow(row){
@@ -98,7 +183,10 @@ export class FooterDefinition {
 
         return this;
 
+
     }
+
+
 
 
 
@@ -112,38 +200,56 @@ export class FooterDefinition {
 
     }
 
-    //--------------------------------------------------
-    // Height
-    //--------------------------------------------------
 
-    getHeight(){
 
-        return this.height;
 
-    }
+
+
 
     validate(){
 
-    const errors=[];
+
+        const errors=[];
 
 
-    if(
-        this.repeat &&
-        this.lastPageOnly
-    ){
 
-        errors.push(
-          "repeat and lastPageOnly cannot both be true"
-        );
+        if(
+
+            this.repeat &&
+
+            this.lastPageOnly
+
+        ){
+
+
+            errors.push(
+
+                "repeat and lastPageOnly cannot both be true"
+
+            );
+
+
+        }
+
+
+
+
+        return {
+
+
+            valid:
+
+                errors.length === 0,
+
+
+            errors
+
+
+        };
+
 
     }
 
 
-    return {
-        valid:errors.length===0,
-        errors
-    };
-
-}
 
 }

@@ -2,10 +2,20 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : PaginationManager.js
- * Version   : 3.0.0
+ * Version   : 6.1.0
  *
- * Description :
- *      Splits rows into pages.
+ * Description:
+ *      Splits report rows into pages.
+ *
+ * Input:
+ *      RuntimeReport
+ *
+ * Responsibilities:
+ *      - Calculate page breaks
+ *      - Measure rows
+ *      - Create Page models
+ *
+ * No Rendering
  *
  * ------------------------------------------------------------
  */
@@ -18,26 +28,11 @@ import { Page } from "../model/Page.js";
 export class PaginationManager {
 
 
-    #layout;
 
-    #measureManager;
-
+    constructor(measureManager){
 
 
-    constructor({
-
-        layout,
-
-        measureManager
-
-    }) {
-
-
-        this.#layout =
-            layout;
-
-
-        this.#measureManager =
+        this.measureManager =
             measureManager;
 
 
@@ -47,18 +42,94 @@ export class PaginationManager {
 
 
 
-    paginate({
 
-        rows = [],
+    //--------------------------------------------------
+    // Paginate
+    //--------------------------------------------------
 
-        tableDefinition,
+    paginate(
 
-        header = null,
+        runtimeReport,
 
-        footer = null
+        rows = []
+
+    ){
 
 
-    }) {
+
+        if(!runtimeReport){
+
+            throw new Error(
+
+                "RuntimeReport is required."
+
+            );
+
+        }
+
+
+
+
+
+        const layout =
+
+            runtimeReport.layout;
+
+
+
+
+        if(!layout){
+
+            throw new Error(
+
+                "RuntimeReport.layout is missing."
+
+            );
+
+        }
+
+
+
+
+
+        const table =
+
+            runtimeReport.table;
+
+
+
+
+        if(!table){
+
+            throw new Error(
+
+                "RuntimeReport.table is missing."
+
+            );
+
+        }
+
+
+
+
+
+
+        const availableHeight =
+
+            layout.bodyHeight;
+
+
+
+
+
+
+        const columns =
+
+            table.visibleColumns;
+
+
+
+
 
 
 
@@ -66,16 +137,21 @@ export class PaginationManager {
 
 
 
-        let currentPage =
-            this.#createPage(
+
+
+
+
+        let page =
+
+            this.createPage(
 
                 1,
 
-                header,
-
-                tableDefinition
+                availableHeight
 
             );
+
+
 
 
 
@@ -85,13 +161,13 @@ export class PaginationManager {
 
 
 
-            const measure =
+            const result =
 
-                this.#measureManager.measureRow(
+                this.measureManager.measureRow(
 
                     row,
 
-                    tableDefinition.visibleColumns
+                    columns
 
                 );
 
@@ -99,30 +175,42 @@ export class PaginationManager {
 
 
 
+            const rowHeight =
+
+                result.height;
+
+
+
+
+
+
+            //----------------------------------
+            // New Page
+            //----------------------------------
+
             if(
 
-                !currentPage.canAccept(
-                    measure.height
-                )
+                !page.canAccept(rowHeight)
+
+                &&
+
+                !page.isEmpty()
 
             ){
 
 
 
-                pages.push(
-                    currentPage
-                );
+                pages.push(page);
 
 
 
-                currentPage =
-                    this.#createPage(
+                page =
+
+                    this.createPage(
 
                         pages.length + 1,
 
-                        header,
-
-                        tableDefinition
+                        availableHeight
 
                     );
 
@@ -133,17 +221,13 @@ export class PaginationManager {
 
 
 
-            currentPage.addRow(
 
-                {
 
-                    data: row,
+            page.addRow(
 
-                    measure
+                row,
 
-                },
-
-                measure.height
+                rowHeight
 
             );
 
@@ -155,27 +239,15 @@ export class PaginationManager {
 
 
 
-        if(!currentPage.isEmpty()){
 
 
-            pages.push(
-                currentPage
-            );
+        if(!page.isEmpty()){
 
+            pages.push(page);
 
         }
 
 
-
-
-
-        this.#applyFooter(
-
-            pages,
-
-            footer
-
-        );
 
 
 
@@ -190,91 +262,35 @@ export class PaginationManager {
 
 
 
-    #createPage(
+
+
+    //--------------------------------------------------
+    // Create Page
+    //--------------------------------------------------
+
+    createPage(
 
         number,
 
-        header,
-
-        tableDefinition
+        height
 
     ){
 
 
         return new Page({
 
-
             number,
 
 
-            table:
-                tableDefinition,
-
-            rows: [],
-
-            header,
-
             availableHeight:
-                this.#layout.bodyHeight
 
-        });
-
-    }
+            height,
 
 
-    #applyFooter(
-
-        pages,
-
-        footer
-
-    ){
-
-
-        if(!footer){
-
-            return;
-
-        }
-
-    console.log("FOOTER OBJECT:", footer);
-    console.log("FOOTER TYPE:", footer?.constructor?.name);
-    console.log("HAS shouldRender:", typeof footer?.shouldRender);
-
-        const totalPages =
-            pages.length;
-
-
-
-
-        pages.forEach(page => {
-
-
-
-            if(
-
-                footer.shouldRender(
-
-                    page.number,
-
-                    totalPages
-
-                )
-
-            ){
-
-
-                page.setFooter(
-                    footer
-                );
-
-
-            }
-
+            tableHeader:true
 
 
         });
-
 
 
     }

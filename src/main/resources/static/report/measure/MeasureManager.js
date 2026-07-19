@@ -101,6 +101,14 @@ export class MeasureManager {
     measureRow(row,columns){
 
 
+        if(!Array.isArray(columns)){
+
+            throw new Error(
+                "MeasureManager.measureRow requires columns array"
+            );
+
+        }
+
         return this.#rowCalculator.calculate(
 
             row,

@@ -2,40 +2,127 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : HeaderDefinition.js
- * Version   : 4.0.0
+ * Version   : 5.0.0
  *
- * Description :
- *      Header definition based on sections.
+ * Description:
+ *      Defines report header layout.
+ *
+ *      Supports:
+ *      - top row
+ *      - three column middle row
+ *      - bottom row
+ *      - padding
+ *      - margin
  *
  * ------------------------------------------------------------
  */
-export class HeaderDefinition {
 
 
-constructor(config = {}) {
+import { BaseDefinition } from "./BaseDefinition.js";
 
 
-    this.height =
-        config.height ?? 40;
-
-
-    this.repeat =
-        config.repeat ?? true;
+export class HeaderDefinition extends BaseDefinition {
 
 
 
-    if(Array.isArray(config.sections)){
+    constructor({
+
+                    height = null,
+
+                    repeat = true,
+
+                    margin = {},
+
+                    padding = {},
+
+                    sections = {},
+
+                    metadata = {}
+
+                } = {}){
+
+
+        super(metadata);
+
+
+
+        this.repeat =
+            repeat;
+
+
+
+        this.margin = {
+
+
+            top:
+                margin.top ?? 0,
+
+
+            bottom:
+                margin.bottom ?? 0
+
+
+        };
+
+
+
+        this.padding = {
+
+
+            top:
+                padding.top ?? 0,
+
+
+            right:
+                padding.right ?? 0,
+
+
+            bottom:
+                padding.bottom ?? 0,
+
+
+            left:
+                padding.left ?? 0
+
+
+        };
+
+
 
 
         this.sections =
-            config.sections;
+
+            this.createSections(
+                sections
+            );
+
+
+
+
+        this.height =
+
+            height;
+
 
 
     }
-    else{
 
 
-        this.sections = [
+
+
+
+
+
+    //--------------------------------------------------
+    // Create Structure
+    //--------------------------------------------------
+
+    createSections(sections){
+
+
+
+        return [
+
 
             {
 
@@ -45,30 +132,43 @@ constructor(config = {}) {
 
                 height:8,
 
+
                 items:
-                    config.sections?.top ?? []
+                    sections.top ?? []
 
             },
+
 
 
             {
 
-                name:"main",
+                name:"middle",
 
                 layout:"three-column",
 
-                height:25,
+                height:24,
 
-                columns:
-                    config.sections?.middle ?? {
 
-                        right:[],
-                        center:[],
-                        left:[]
+                columns:{
 
-                    }
+
+                    right:
+                        sections.middle?.right ?? [],
+
+
+                    center:
+                        sections.middle?.center ?? [],
+
+
+                    left:
+                        sections.middle?.left ?? []
+
+
+                }
+
 
             },
+
 
 
             {
@@ -79,8 +179,10 @@ constructor(config = {}) {
 
                 height:8,
 
+
                 items:
-                    config.sections?.bottom ?? []
+                    sections.bottom ?? []
+
 
             }
 
@@ -91,7 +193,97 @@ constructor(config = {}) {
     }
 
 
-}
+
+
+
+
+
+    //--------------------------------------------------
+    // Height Calculation
+    //--------------------------------------------------
+
+    getHeight(){
+
+
+
+        if(this.height !== null){
+
+
+            return this.height;
+
+
+        }
+
+
+
+
+        const sectionHeight =
+
+
+            this.sections.reduce(
+
+                (sum,section)=>
+
+
+                    sum +
+
+                    (section.height ?? 0),
+
+
+                0
+
+
+            );
+
+
+
+
+
+        return (
+
+            sectionHeight
+
+            +
+
+            this.padding.top
+
+            +
+
+            this.padding.bottom
+
+
+        );
+
+
+    }
+
+
+
+
+
+
+
+    //--------------------------------------------------
+    // Section
+    //--------------------------------------------------
+
+    getSection(name){
+
+
+        return this.sections.find(
+
+            section =>
+
+                section.name === name
+
+        );
+
+
+    }
+
+
+
+
 
 
 
@@ -103,22 +295,12 @@ constructor(config = {}) {
 
         return this;
 
-    }
-
-
-
-    getSection(name){
-
-
-        return this.sections.find(
-
-            section =>
-
-            section.name === name
-
-        );
 
     }
+
+
+
+
 
 
 
@@ -131,19 +313,32 @@ constructor(config = {}) {
     }
 
 
-    getHeight(){
 
-    return this.sections.reduce(
 
-        (sum,section)=>
 
-            sum + (section.height ?? 0),
 
-        0
 
-    );
+    //--------------------------------------------------
+    // Validation
+    //--------------------------------------------------
 
-}
+    validate(){
+
+
+        return {
+
+
+            valid:true,
+
+
+            errors:[]
+
+
+        };
+
+
+    }
+
 
 
 }

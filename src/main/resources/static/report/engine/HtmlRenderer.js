@@ -2,69 +2,83 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : HtmlRenderer.js
- * Version   : 4.2.0
+ * Version   : 5.2.0
  *
  * Description :
- *      HTML Renderer
+ *      Converts RuntimeReport + Page model to HTML.
  *
- *      Supports:
- *      - Page Rendering
- *      - Section Header
- *      - Table Header
- *      - Table Body
- *      - Footer
- *      - Column Width
- *      - Column Alignment
+ * Responsibilities:
+ *      ✔ Header
+ *      ✔ Footer
+ *      ✔ Table
+ *      ✔ Elements
+ *
+ * No Layout Calculation
+ * No Pagination
+ *
+ * Compatible with:
+ *      RuntimeReport 5.x
+ *      PaginationManager 6.x
  *
  * ------------------------------------------------------------
  */
 
 
+import { BindingResolver }
+    from "../resolver/BindingResolver.js";
+
+
+
 export class HtmlRenderer {
 
 
+
+    constructor(){
+
+
+        this.bindingResolver =
+            new BindingResolver();
+
+
+    }
+
+
+
+
+
+
+    //--------------------------------------------------
+    // Render
+    //--------------------------------------------------
+
     render(
-        reportDefinition,
+
+        runtimeReport,
+
         pages,
-        layout
+
+        context = {}
+
     ){
 
 
-        const container =
-            document.createElement("div");
+        return pages
 
-
-        container.className =
-            "report-container";
-
-
-
-        pages.forEach((page,index)=>{
-
-
-            container.appendChild(
+            .map(page =>
 
                 this.renderPage(
 
+                    runtimeReport,
+
                     page,
 
-                    layout,
+                    context
 
-                    reportDefinition.table,
-
-                    index + 1,
-
-                    pages.length
                 )
 
-            );
+            )
 
-
-        });
-
-
-
-        return container;
+            .join("");
 
     }
 
@@ -72,86 +86,128 @@ export class HtmlRenderer {
 
 
 
+
+
+    //--------------------------------------------------
+    // Page
+    //--------------------------------------------------
 
     renderPage(
 
+        runtimeReport,
+
         page,
 
-        layout,
+        context
 
-        tableDefinition,
-
-        pageNumber,
-
-        totalPages
     ){
 
 
-        const div =
-            document.createElement("div");
+        return `
+
+<section
+class="report-page"
+data-page="${page.number}">
 
 
-        div.className =
-            "report-page";
+${this.renderHeader(
 
-        div.style.fontFamily =
-            layout.font;
+            context.header,
 
+            context
 
-        div.style.fontSize =
-            layout.fontSize + "pt";
-
-
-        div.style.lineHeight =
-            layout.lineHeight + "mm";
-
-        div.style.width =
-            layout.pageWidth + "mm";
-
-
-        div.style.minHeight =
-            layout.pageHeight + "mm";
+        )}
 
 
 
+${this.renderTable(
+
+            runtimeReport.table,
+
+            page,
+
+            context
+
+        )}
 
 
-        if(page.header){
+
+${this.renderFooter(
+
+            runtimeReport.footer,
+
+            context.footer,
+
+            page,
+
+            context
+
+        )}
 
 
-            div.appendChild(
 
-                this.renderHeader(
+</section>
 
-                    page.header,
+`;
 
-                    pageNumber,
+    }
 
-                    totalPages
 
-                )
 
-            );
 
+
+
+
+    //--------------------------------------------------
+    // Header
+    //--------------------------------------------------
+
+    renderHeader(
+
+        header,
+
+        context
+
+    ){
+
+
+        if(!header){
+
+            return "";
 
         }
 
 
 
+        return `
+
+<header
+class="report-header"
+style="${this.renderBoxStyle(header)}">
 
 
+${(header.sections ?? [])
 
-        div.appendChild(
+            .map(section =>
 
-            this.renderTable(
+                this.renderHeaderSection(
 
-                page,
+                    section,
 
-                tableDefinition
+                    context
+
+                )
 
             )
 
-        );
+            .join("")}
+
+
+</header>
+
+`;
+
+    }
 
 
 
@@ -159,26 +215,157 @@ export class HtmlRenderer {
 
 
 
-        if(page.footer){
+
+    //--------------------------------------------------
+    // Header Section
+    //--------------------------------------------------
+
+    renderHeaderSection(
+
+        section,
+
+        context
+
+    ){
 
 
-            div.appendChild(
+        if(!section){
 
-                this.renderFooter(
-
-                    page.footer
-
-                )
-
-            );
-
+            return "";
 
         }
 
 
 
-        return div;
 
+        //------------------------------------------
+        // Three Column
+        //------------------------------------------
+
+        if(section.layout === "three-column"){
+
+
+
+            return `
+
+<div
+class="header-section header-three-column"
+style="${this.renderBoxStyle(section)}">
+
+
+
+<div class="header-column header-right">
+
+${(section.columns?.right ?? [])
+
+                .map(item =>
+
+                    this.renderElement(
+
+                        item,
+
+                        context
+
+                    )
+
+                )
+
+                .join("")}
+
+</div>
+
+
+
+
+<div class="header-column header-center">
+
+${(section.columns?.center ?? [])
+
+                .map(item =>
+
+                    this.renderElement(
+
+                        item,
+
+                        context
+
+                    )
+
+                )
+
+                .join("")}
+
+</div>
+
+
+
+
+<div class="header-column header-left">
+
+${(section.columns?.left ?? [])
+
+                .map(item =>
+
+                    this.renderElement(
+
+                        item,
+
+                        context
+
+                    )
+
+                )
+
+                .join("")}
+
+</div>
+
+
+
+</div>
+
+`;
+
+        }
+
+
+
+
+
+
+
+        //------------------------------------------
+        // Full Width
+        //------------------------------------------
+
+        return `
+
+<div
+class="header-section"
+style="${this.renderBoxStyle(section)}">
+
+
+${(section.items ?? [])
+
+            .map(item =>
+
+                this.renderElement(
+
+                    item,
+
+                    context
+
+                )
+
+            )
+
+            .join("")}
+
+
+
+</div>
+
+`;
 
     }
 
@@ -191,51 +378,158 @@ export class HtmlRenderer {
 
 
     //--------------------------------------------------
-    // TABLE
+    // Footer
     //--------------------------------------------------
 
+    renderFooter(
 
-    renderTable(
+        footerDefinition,
+
+        footer,
 
         page,
 
-        tableDefinition
+        context
 
     ){
 
 
 
-        const table =
-            document.createElement("table");
+        if(!footerDefinition || !footer){
 
+            return "";
 
-
-        table.className =
-            "report-table";
-
+        }
 
 
 
 
-        table.appendChild(
 
-            this.renderColGroup(
+        if(
 
-                tableDefinition
+            typeof footerDefinition.shouldRender === "function"
+
+            &&
+
+            !footerDefinition.shouldRender(
+
+                page.number,
+
+                page.totalPages
 
             )
 
-        );
+        ){
+
+            return "";
+
+        }
+
+
+
+
+
+        const footerContext = {
+
+
+            ...context,
+
+
+            pageNumber:
+            page.number,
+
+
+            totalPages:
+            page.totalPages
+
+
+        };
+
+
+
+
+
+        return `
+
+<footer
+class="report-footer"
+style="${this.renderBoxStyle(footer)}">
+
+
+${(footer.rows ?? [])
+
+            .map(item =>
+
+                this.renderElement(
+
+                    item,
+
+                    footerContext
+
+                )
+
+            )
+
+            .join("")}
+
+
+</footer>
+
+`;
+
+    }
 
 
 
 
 
 
-        if(tableDefinition.showHeader){
 
 
-            table.appendChild(
+
+    //--------------------------------------------------
+    // Table
+    //--------------------------------------------------
+
+    renderTable(
+
+        tableDefinition,
+
+        page,
+
+        context
+
+    ){
+
+
+
+        if(!tableDefinition){
+
+            return "";
+
+        }
+
+
+
+
+
+        return `
+
+<table
+class="report-table">
+
+
+
+${
+
+            tableDefinition.showHeader
+
+            &&
+
+            page.tableHeader
+
+
+                ?
 
                 this.renderTableHeader(
 
@@ -243,180 +537,46 @@ export class HtmlRenderer {
 
                 )
 
-            );
 
+                :
+
+                ""
 
         }
 
 
 
 
+<tbody>
 
 
-        table.appendChild(
+${page.rows
 
-            this.renderTableBody(
-
-                page,
-
-                tableDefinition
-
-            )
-
-        );
-
-
-
-
-        return table;
-
-
-    }
-
-
-
-
-
-
-
-
-    renderColGroup(tableDefinition){
-
-
-
-        const colgroup =
-            document.createElement("colgroup");
-
-
-
-        tableDefinition.visibleColumns
-
-        .forEach(column=>{
-
-
-            const col =
-                document.createElement("col");
-
-
-
-            col.style.width =
-                column.width + "mm";
-
-
-
-            colgroup.appendChild(col);
-
-
-        });
-
-
-
-        return colgroup;
-
-
-    }
-
-
-
-
-
-
-
-
-    renderTableHeader(tableDefinition){
-
-
-        const thead =
-            document.createElement("thead");
-
-
-
-        const tr =
-            document.createElement("tr");
-
-
-
-        tableDefinition.visibleColumns
-
-        .forEach(column=>{
-
-
-            const th =
-                document.createElement("th");
-
-
-
-            th.textContent =
-                column.title;
-
-
-
-            th.style.textAlign =
-                column.thAlign;
-
-
-
-            tr.appendChild(th);
-
-
-
-        });
-
-
-
-        thead.appendChild(tr);
-
-
-
-        return thead;
-
-
-    }
-
-
-
-
-
-
-
-
-    renderTableBody(
-
-        page,
-
-        tableDefinition
-
-    ){
-
-
-
-        const tbody =
-            document.createElement("tbody");
-
-
-
-        page.rows.forEach(row=>{
-
-
-            tbody.appendChild(
+            .map(row =>
 
                 this.renderRow(
 
-                    row,
+                    tableDefinition,
 
-                    tableDefinition
+                    row.data,
+
+                    context
 
                 )
 
-            );
+            )
+
+            .join("")}
 
 
-        });
+
+</tbody>
 
 
 
-        return tbody;
+</table>
 
+`;
 
     }
 
@@ -427,93 +587,57 @@ export class HtmlRenderer {
 
 
 
-    renderRow(
 
-        row,
+    //--------------------------------------------------
+    // Table Header
+    //--------------------------------------------------
+
+    renderTableHeader(
 
         tableDefinition
 
     ){
 
 
+        return `
 
-        const tr =
-            document.createElement("tr");
+<thead>
 
-
-
-        const cells =
-            Object.values(
-
-                row.measure.cells
-
-            );
+<tr>
 
 
+${tableDefinition.visibleColumns
+
+            .map(column =>
 
 
+                `
 
-        tableDefinition.visibleColumns
+<th
 
-        .forEach((column,index)=>{
+style="
+width:${column.width}mm;
+text-align:${column.thAlign ?? "center"};
+">
 
+${column.title}
 
-            tr.appendChild(
+</th>
 
-                this.renderCell(
-
-                    cells[index],
-
-                    column
-
-                )
-
-            );
+`
 
 
-        });
+            )
+
+            .join("")}
 
 
 
-        return tr;
+</tr>
 
+</thead>
 
-    }
-
-
-
-
-
-
-
-
-
-    renderCell(
-
-        cell,
-
-        column
-
-    ){
-
-
-        const td =
-            document.createElement("td");
-
-
-
-        td.textContent =
-            cell?.value ?? "";
-
-
-
-        td.style.textAlign =
-            column.tdAlign;
-
-
-
-        return td;
-
+`;
 
     }
 
@@ -526,408 +650,168 @@ export class HtmlRenderer {
 
 
     //--------------------------------------------------
-    // HEADER
+    // Table Row
     //--------------------------------------------------
 
-renderHeader(
+    renderRow(
 
-    header,
+        tableDefinition,
 
-    pageNumber,
+        row,
 
-    totalPages
+        context
 
-){
-
-    const div =
-        document.createElement("div");
+    ){
 
 
-    div.className =
-        "report-header";
+        return `
+
+<tr>
 
 
+${tableDefinition.visibleColumns
 
-    header.sections.forEach(section=>{
-
-
-        const sectionDiv =
-            document.createElement("div");
+            .map(column =>
 
 
-        sectionDiv.className =
-            "header-section";
+                `
+
+<td
+
+style="
+width:${column.width}mm;
+text-align:${column.tdAlign ?? "right"};
+">
+
+${this.resolveValue(
+
+                    column,
+
+                    row,
+
+                    context
+
+                )}
+
+</td>
+
+`
 
 
+            )
 
-        //----------------------------------
-        // Three Column
-        //----------------------------------
-
-        if(
-            section.layout === "three-column"
-        ){
-
-
-            sectionDiv.classList.add(
-                "header-three-column"
-            );
-
-
-
-            Object.entries(section.columns)
-
-            .forEach(([position,items])=>{
-
-
-                const column =
-                    document.createElement("div");
-
-
-                column.className =
-                    "header-column header-" + position;
+            .join("")}
 
 
 
-                items.forEach(item=>{
+</tr>
+
+`;
+
+    }
+    //--------------------------------------------------
+    // Element
+    //--------------------------------------------------
+
+    renderElement(
+
+        element,
+
+        context
+
+    ){
 
 
-                    column.appendChild(
+        if(!element){
 
-                        this.renderItem(
-
-                            item,
-
-                            pageNumber,
-
-                            totalPages
-
-                        )
-
-                    );
-
-
-                });
-
-
-
-                sectionDiv.appendChild(column);
-
-
-            });
-
-
+            return "";
 
         }
 
 
 
-        //----------------------------------
-        // Full Section
-        //----------------------------------
-
-        else {
+        switch(element.type){
 
 
-            sectionDiv.classList.add(
-                "header-full"
-            );
+            case "text":
 
+                return this.renderText(
 
+                    element,
 
-            (section.items ?? [])
-
-            .forEach(item=>{
-
-
-                sectionDiv.appendChild(
-
-                    this.renderItem(
-
-                        item,
-
-                        pageNumber,
-
-                        totalPages
-
-                    )
+                    context
 
                 );
 
 
-            });
 
+            case "title":
 
-        }
+                return this.renderTitle(
 
-
-
-
-        div.appendChild(sectionDiv);
-
-
-
-    });
-
-
-
-    return div;
-
-}
-   
-
-    renderHeaderSection(
-
-        parent,
-
-        name,
-
-        items,
-
-        pageNumber,
-
-        totalPages
-
-    ){
-
-
-
-        if(!items){
-            return;
-        }
-
-
-
-        const section =
-            document.createElement("div");
-
-
-
-        section.className =
-            "header-section header-" + name;
-
-
-
-
-
-        items.forEach(item=>{
-
-
-            section.appendChild(
-
-                this.renderItem(
-
-                    item,
-
-                    pageNumber,
-
-                    totalPages
-
-                )
-
-            );
-
-
-        });
-
-
-
-
-        parent.appendChild(section);
-
-
-    }
-
-
-
-
-
-
-
-
-
-    renderMiddleHeader(
-
-        parent,
-
-        middle,
-
-        pageNumber,
-
-        totalPages
-
-    ){
-
-
-
-        if(!middle){
-            return;
-        }
-
-
-
-
-
-        const section =
-            document.createElement("div");
-
-
-
-        section.className =
-            "header-section header-middle";
-
-
-
-        section.classList.add(
-            "header-three-column"
-        );
-
-
-
-
-
-
-
-        ["right","center","left"]
-
-        .forEach(position=>{
-
-
-
-            const column =
-                document.createElement("div");
-
-
-
-            column.className =
-                "header-column header-" + position;
-
-
-
-
-
-            (middle[position] ?? [])
-
-            .forEach(item=>{
-
-
-                column.appendChild(
-
-                    this.renderItem(
-
-                        item,
-
-                        pageNumber,
-
-                        totalPages
-
-                    )
+                    element
 
                 );
 
-
-            });
-
-
-
-
-            section.appendChild(column);
-
-
-
-        });
-
-
-
-
-        parent.appendChild(section);
-
-
-    }
-
-
-
-
-
-
-
-
-
-    renderItem(
-
-        item,
-
-        pageNumber,
-
-        totalPages
-
-    ){
-
-
-
-        const div =
-            document.createElement("div");
-
-
-
-        switch(item.type){
 
 
             case "logo":
 
+            case "image":
 
-                const img =
-                    document.createElement("img");
+                return this.renderImage(
 
+                    element
 
-
-                img.src =
-                    item.src;
-
-
-
-                if(item.width){
-
-                    img.style.width =
-                        item.width + "mm";
-
-                }
-
-
-
-                if(item.height){
-
-                    img.style.height =
-                        item.height + "mm";
-
-                }
-
-
-
-                div.appendChild(img);
-
-
-                break;
-
+                );
 
 
 
             case "pageNumber":
 
-                //div.style.paddingRight= "65mm";
-                div.textContent =
-                    `صفحه ${pageNumber} از ${totalPages}`;
+                return this.renderPageNumber(
 
-               // div.style='${styleItem}';
-                break;
+                    context
+
+                );
+
+
+
+            case "signature":
+
+                return this.renderSignature(
+
+                    element,
+
+                    context
+
+                );
+
+
+
+            case "line":
+
+                return "<hr class='report-line'>";
+
+
+
+            case "html":
+
+                return element.html ?? "";
+
+
 
             default:
-                div.textContent = this.resolve(item);
+
+                return this.renderText(
+
+                    element,
+
+                    context
+
+                );
+
         }
-
-
-
-        return div;
 
 
     }
@@ -935,86 +819,703 @@ renderHeader(
 
 
 
-    resolve(item){
-
-
-            let result="";
-
-
-            if(
-                item.label
-                &&
-                item.label.trim() !== ""
-            ){
-
-                result +=
-                    item.label + " : ";
-
-            }
 
 
 
-            if(
-                item.value !== undefined
-                &&
-                item.value !== null
-            ){
-
-                result +=
-                    item.value;
-
-            }
 
 
+    //--------------------------------------------------
+    // Text
+    //--------------------------------------------------
 
-            return result;
+    renderText(
+
+        element,
+
+        context
+
+    ){
+
+
+        const value =
+
+            this.resolveBinding(
+
+                element,
+
+                context
+
+            );
+
+
+
+
+
+        return `
+
+<div
+
+class="report-text"
+
+style="${this.renderElementStyle(element)}">
+
+${value}
+
+</div>
+
+`;
+
+    }
+
+
+
+
+
+
+
+
+
+    //--------------------------------------------------
+    // Title
+    //--------------------------------------------------
+
+    renderTitle(
+
+        element
+
+    ){
+
+
+        return `
+
+<div
+
+class="report-title"
+
+style="${this.renderElementStyle(element)}">
+
+${element.value ?? ""}
+
+</div>
+
+`;
+
+    }
+
+
+
+
+
+
+
+
+
+    //--------------------------------------------------
+    // Image
+    //--------------------------------------------------
+
+    renderImage(
+
+        element
+
+    ){
+
+
+        return `
+
+<img
+
+class="report-image"
+
+src="${element.src}"
+
+style="
+width:${element.width ?? 15}mm;
+height:${element.height ?? 15}mm;
+object-fit:${element.fit ?? "contain"};
+"
+
+/>
+
+`;
+
+    }
+
+
+
+
+
+
+
+
+
+    //--------------------------------------------------
+    // Page Number
+    //--------------------------------------------------
+
+    renderPageNumber(
+
+        context
+
+    ){
+
+
+        return `
+
+<div class="report-page-number">
+
+صفحه
+
+${context.pageNumber}
+
+از
+
+${context.totalPages}
+
+</div>
+
+`;
+
+    }
+
+
+
+
+
+
+
+
+
+    //--------------------------------------------------
+    // Signature
+    //--------------------------------------------------
+
+    renderSignature(
+
+        element,
+
+        context
+
+    ){
+
+
+        const value =
+
+            this.resolveBinding(
+
+                element,
+
+                context
+
+            );
+
+
+
+
+
+        return `
+
+<div
+
+class="report-signature"
+
+style="${this.renderElementStyle(element)}">
+
+${value}
+
+</div>
+
+`;
+
+    }
+
+
+
+
+
+
+
+
+
+    //--------------------------------------------------
+    // Binding
+    //--------------------------------------------------
+
+    resolveBinding(
+
+        element,
+
+        context
+
+    ){
+
+
+
+        if(!element.binding){
+
+
+            return (
+
+                element.value
+
+                ??
+
+                element.text
+
+                ??
+
+                ""
+
+            );
+
+        }
+
+
+
+
+
+        return BindingResolver.resolve(
+
+            element.binding,
+
+            context
+
+        );
+
+
+    }
+
+
+
+
+
+
+
+
+
+    //--------------------------------------------------
+    // Cell Value
+    //--------------------------------------------------
+
+    resolveValue(
+
+        column,
+
+        row,
+
+        context
+
+    ){
+
+
+
+        if(column.binding){
+
+
+            return BindingResolver.resolve(
+
+                column.binding,
+
+                {
+
+                    ...context,
+
+                    row
+
+                }
+
+            );
 
 
         }
 
 
-    //--------------------------------------------------
-    // FOOTER
-    //--------------------------------------------------
-
-
-    renderFooter(footer){
-
-
-        const div =
-            document.createElement("div");
-
-
-        div.className =
-            "report-footer";
 
 
 
-        footer.rows.forEach(row=>{
-
-
-            const item =
-                document.createElement("div");
-
-
-
-            item.textContent =
-                row.value ?? "";
-
-
-
-            div.appendChild(item);
-
-
-
-        });
-
-
-
-        return div;
+        return row[column.field] ?? "";
 
 
     }
+
+
+
+
+
+
+
+
+
+    //--------------------------------------------------
+    // Box Style
+    //--------------------------------------------------
+
+    renderBoxStyle(
+
+        box = {}
+
+    ){
+
+
+        const style = [];
+
+
+
+
+
+        if(box.width != null){
+
+
+            style.push(
+
+                `width:${box.width}mm`
+
+            );
+
+        }
+
+
+
+
+
+        if(box.height != null){
+
+
+            style.push(
+
+                `height:${box.height}mm`
+
+            );
+
+        }
+
+
+
+
+
+
+
+        if(box.padding){
+
+
+            style.push(`
+
+padding:
+${box.padding.top ?? 0}mm
+${box.padding.right ?? 0}mm
+${box.padding.bottom ?? 0}mm
+${box.padding.left ?? 0}mm
+
+`.replace(/\s+/g," "));
+
+
+        }
+
+
+
+
+
+
+
+        if(box.margin){
+
+
+            style.push(`
+
+margin:
+${box.margin.top ?? 0}mm
+${box.margin.right ?? 0}mm
+${box.margin.bottom ?? 0}mm
+${box.margin.left ?? 0}mm
+
+`.replace(/\s+/g," "));
+
+
+        }
+
+
+
+
+
+
+
+        if(box.background){
+
+
+            style.push(
+
+                `background:${box.background}`
+
+            );
+
+
+        }
+
+
+
+
+
+
+
+        if(box.border){
+
+
+            style.push(
+
+                `border:${box.border}`
+
+            );
+
+
+        }
+
+
+
+
+
+
+        return style.join(";");
+
+
+    }
+
+
+
+
+
+
+
+
+
+    //--------------------------------------------------
+    // Element Style
+    //--------------------------------------------------
+
+    renderElementStyle(
+
+        element = {}
+
+    ){
+
+
+        const style=[];
+
+
+
+
+
+
+
+        if(element.align){
+
+
+            style.push(
+
+                `text-align:${element.align}`
+
+            );
+
+
+        }
+
+
+
+
+
+
+
+        if(element.fontFamily){
+
+
+            style.push(
+
+                `font-family:${element.fontFamily}`
+
+            );
+
+
+        }
+
+
+
+
+
+
+
+        if(element.fontSize){
+
+
+            style.push(
+
+                `font-size:${element.fontSize}pt`
+
+            );
+
+
+        }
+
+
+
+
+
+
+
+        if(element.fontWeight){
+
+
+            style.push(
+
+                `font-weight:${element.fontWeight}`
+
+            );
+
+
+        }
+
+
+
+
+
+
+
+        if(element.color){
+
+
+            style.push(
+
+                `color:${element.color}`
+
+            );
+
+
+        }
+
+
+
+
+
+
+
+        if(element.width){
+
+
+            style.push(
+
+                `width:${element.width}mm`
+
+            );
+
+
+        }
+
+
+
+
+
+
+
+        if(element.height){
+
+
+            style.push(
+
+                `height:${element.height}mm`
+
+            );
+
+
+        }
+
+
+
+
+
+
+
+        if(element.padding){
+
+
+            style.push(`
+
+padding:
+${element.padding.top ?? 0}mm
+${element.padding.right ?? 0}mm
+${element.padding.bottom ?? 0}mm
+${element.padding.left ?? 0}mm
+
+`.replace(/\s+/g," "));
+
+
+        }
+
+
+
+
+
+
+
+        if(element.margin){
+
+
+            style.push(`
+
+margin:
+${element.margin.top ?? 0}mm
+${element.margin.right ?? 0}mm
+${element.margin.bottom ?? 0}mm
+${element.margin.left ?? 0}mm
+
+`.replace(/\s+/g," "));
+
+
+        }
+
+
+
+
+
+
+
+        if(element.display){
+
+
+            style.push(
+
+                `display:${element.display}`
+
+            );
+
+
+        }
+
+
+
+
+
+
+
+        if(element.flex){
+
+
+            style.push(
+
+                `flex:${element.flex}`
+
+            );
+
+
+        }
+
+
+
+
+
+
+        return style.join(";");
+
+
+    }
+
 
 
 }

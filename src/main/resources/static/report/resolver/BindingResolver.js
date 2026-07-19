@@ -2,9 +2,9 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : BindingResolver.js
- * Version   : 2.0.0
+ * Version   : 5.0.0
  *
- * Description :
+ * Description:
  *      Resolves report bindings.
  *
  * ------------------------------------------------------------
@@ -15,9 +15,16 @@ export class BindingResolver {
 
 
 
-   /* static resolveHeader(
+    //--------------------------------------------------
+    // Header
+    //--------------------------------------------------
+
+    static resolveHeader(
+
         header,
+
         context={}
+
     ){
 
 
@@ -29,79 +36,41 @@ export class BindingResolver {
 
 
 
-        return {
+        header.sections =
 
+            header.sections.map(
 
-            ...header,
+                section =>
 
+                    this.resolveSection(
 
-            sections:
-
-                Array.isArray(header.sections)
-
-                ?
-
-                header.sections.map(
-
-                    section =>
-
-                    this.#resolveSection(
                         section,
+
                         context
+
                     )
 
-                ) :   []
-
-        };
+            );
 
 
-    }*/
 
-static resolveHeader(
+        return header;
 
-    header,
-
-    context = {}
-
-){
-
-
-    if(!header){
-
-        return null;
 
     }
 
 
 
-    header.sections =
-
-
-        (header.sections ?? [])
-
-        .map(
-
-            section =>
-
-            this.#resolveSection(
-
-                section,
-
-                context
-
-            )
-
-        );
 
 
 
-    return header;
 
 
-}
+    //--------------------------------------------------
+    // Section
+    //--------------------------------------------------
 
-
-    static #resolveSection(
+    static resolveSection(
 
         section,
 
@@ -110,36 +79,17 @@ static resolveHeader(
     ){
 
 
-        const result = {
-
-
-            ...section
-
-        };
-
-
-
-
-        //---------------------------------
-        // Normal section items
-        //---------------------------------
 
         if(section.items){
 
 
-            result.items =
+            section.items =
 
-                section.items.map(
+                this.resolveItems(
 
-                    item =>
+                    section.items,
 
-                    this.#resolveItem(
-
-                        item,
-
-                        context
-
-                    )
+                    context
 
                 );
 
@@ -150,58 +100,53 @@ static resolveHeader(
 
 
 
-        //---------------------------------
-        // Column section
-        //---------------------------------
 
         if(section.columns){
 
 
-            result.columns = {
 
+            section.columns.right =
 
-                right:
+                this.resolveItems(
 
-                    this.#resolveItems(
+                    section.columns.right,
 
-                        section.columns.right,
+                    context
 
-                        context
-
-                    ),
-
-
-
-                center:
-
-                    this.#resolveItems(
-
-                        section.columns.center,
-
-                        context
-
-                    ),
+                );
 
 
 
-                left:
+            section.columns.center =
 
-                    this.#resolveItems(
+                this.resolveItems(
 
-                        section.columns.left,
+                    section.columns.center,
 
-                        context
+                    context
 
-                    )
+                );
 
-            };
+
+
+            section.columns.left =
+
+                this.resolveItems(
+
+                    section.columns.left,
+
+                    context
+
+                );
 
 
         }
 
 
 
-        return result;
+
+
+        return section;
 
 
     }
@@ -210,11 +155,18 @@ static resolveHeader(
 
 
 
-    static #resolveItems(
+
+
+
+    //--------------------------------------------------
+    // Items
+    //--------------------------------------------------
+
+    static resolveItems(
 
         items=[],
 
-        context
+        context={}
 
     ){
 
@@ -223,13 +175,13 @@ static resolveHeader(
 
             item =>
 
-            this.#resolveItem(
+                this.resolveItem(
 
-                item,
+                    item,
 
-                context
+                    context
 
-            )
+                )
 
         );
 
@@ -241,7 +193,13 @@ static resolveHeader(
 
 
 
-    static #resolveItem(
+
+
+    //--------------------------------------------------
+    // Item
+    //--------------------------------------------------
+
+    static resolveItem(
 
         item,
 
@@ -254,11 +212,7 @@ static resolveHeader(
         if(!item.binding){
 
 
-            return {
-
-                ...item
-
-            };
+            return item;
 
 
         }
@@ -268,15 +222,13 @@ static resolveHeader(
 
 
         if(
+
             item.binding.source !== "context"
+
         ){
 
 
-            return {
-
-                ...item
-
-            };
+            return item;
 
 
         }
@@ -284,36 +236,11 @@ static resolveHeader(
 
 
 
-
-        const data =
+        const value =
 
             context[
                 item.binding.field
-            ];
-
-
-
-
-
-        if(!data){
-
-
-            return {
-
-
-                ...item,
-
-
-                label:"",
-
-
-                value:""
-
-
-            };
-
-
-        }
+                ];
 
 
 
@@ -325,113 +252,143 @@ static resolveHeader(
             ...item,
 
 
-            label:data.label ?? "",
+            value:
+
+                value?.value
+
+                ??
+
+                value
+
+                ??
+
+                "",
 
 
-            value:data.value ?? ""
+
+            label:
+
+                value?.label
+
+                ??
+
+                ""
 
 
         };
 
 
-
-    }
-
-//--------------------------------------------------
-// Resolve Footer
-//--------------------------------------------------
-
-/*static resolveFooter(
-
-    footer,
-
-    context = {}
-
-){
-
-
-    if(!footer){
-
-        return null;
-
     }
 
 
 
-    return {
-
-
-        ...footer,
-
-
-        rows:
-
-            (footer.rows ?? [])
-
-            .map(
-
-                item =>
-
-                    this.#resolveItem(
-
-                        item,
-
-                        context
-
-                    )
-
-            )
-
-
-    };
-
-
-}*/
-
-//--------------------------------------------------
-// Resolve Footer
-//--------------------------------------------------
-
-static resolveFooter(
-
-    footer,
-
-    context = {}
-
-){
-
-
-    if(!footer){
-
-        return null;
-
-    }
 
 
 
-    footer.rows =
 
-        (footer.rows ?? [])
 
-        .map(
+    //--------------------------------------------------
+    // Footer
+    //--------------------------------------------------
 
-            item =>
+    static resolveFooter(
 
-            this.#resolveItem(
+        footer,
 
-                item,
+        context={}
+
+    ){
+
+
+        if(!footer){
+
+            return null;
+
+        }
+
+
+
+        footer.rows =
+
+            this.resolveItems(
+
+                footer.rows,
 
                 context
 
-            )
-
-        );
+            );
 
 
 
-    return footer;
+        return footer;
 
 
-}
+    }
+
+
+
+
+
+
+
+
+    //--------------------------------------------------
+    // Generic
+    //--------------------------------------------------
+
+    static resolve(
+
+        binding,
+
+        context={}
+
+    ){
+
+
+        if(!binding){
+
+            return "";
+
+        }
+
+
+
+        if(binding.source==="context"){
+
+
+            const value =
+
+                context[
+                    binding.field
+                    ];
+
+
+
+            return (
+
+                value?.value
+
+                ??
+
+                value
+
+                ??
+
+                ""
+
+            );
+
+
+        }
+
+
+
+
+        return "";
+
+
+    }
+
+
 
 }

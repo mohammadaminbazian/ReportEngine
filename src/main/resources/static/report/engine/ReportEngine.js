@@ -2,33 +2,62 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : ReportEngine.js
- * Version   : 3.2.0
+ * Version   : 6.0.0
  *
  * Description :
  *      Main report orchestrator.
+ *
+ * Flow:
+ *
+ *      ReportDefinition
+ *              |
+ *      BindingResolver
+ *              |
+ *      MeasureManager
+ *              |
+ *      LayoutManager
+ *              |
+ *      RuntimeReport
+ *              |
+ *      PaginationManager
+ *              |
+ *      HtmlRenderer
  *
  * ------------------------------------------------------------
  */
 
 
-import { HtmlRenderer } from "./HtmlRenderer.js";
-import { LayoutManager } from "./LayoutManager.js";
-import { PaginationManager } from "./PaginationManager.js";
+import { HtmlRenderer }
+    from "./HtmlRenderer.js";
 
-import { MeasureManager } from "../measure/MeasureManager.js";
+import { LayoutManager }
+    from "./LayoutManager.js";
 
-import { BindingResolver } from "../resolver/BindingResolver.js";
+import { PaginationManager }
+    from "./PaginationManager.js";
+
+import { RuntimeReport }
+    from "../model/RuntimeReport.js";
+
+import { MeasureManager }
+    from "../measure/MeasureManager.js";
+
+import { BindingResolver }
+    from "../resolver/BindingResolver.js";
 
 
 
 export class ReportEngine {
 
 
+    #renderer;
+
+
 
     constructor(){
 
 
-        this.renderer =
+        this.#renderer =
             new HtmlRenderer();
 
 
@@ -37,14 +66,11 @@ export class ReportEngine {
 
 
 
-
-
     generate(
 
         reportDefinition,
 
-        data
-
+        data = {}
 
     ){
 
@@ -54,19 +80,16 @@ export class ReportEngine {
 
 
             throw new Error(
-                "ReportDefinition required"
-            );
 
+                "ReportDefinition is required."
+
+            );
 
         }
 
 
 
 
-
-        //--------------------------------------------------
-        // Resolve Context
-        //--------------------------------------------------
 
         const context =
             data.context ?? {};
@@ -75,8 +98,8 @@ export class ReportEngine {
 
 
 
-        const header =
 
+        const header =
             BindingResolver.resolveHeader(
 
                 reportDefinition.header,
@@ -85,13 +108,11 @@ export class ReportEngine {
 
             );
 
-console.log(
-    "RESOLVED HEADER:",
-    header
-);
+
+
+
 
         const footer =
-
             BindingResolver.resolveFooter(
 
                 reportDefinition.footer,
@@ -105,13 +126,7 @@ console.log(
 
 
 
-
-        //--------------------------------------------------
-        // Measure
-        //--------------------------------------------------
-
         const measureManager =
-
             new MeasureManager(
 
                 reportDefinition.measure
@@ -124,35 +139,32 @@ console.log(
 
 
 
-        //--------------------------------------------------
-        // Layout
-        //--------------------------------------------------
-
         const layoutManager =
-
             new LayoutManager({
 
-
                 pageDefinition:
+                reportDefinition.page,
 
-                    reportDefinition.page,
-                    
+
                 measureDefinition:
-                    reportDefinition.measure,
-
-                header,
+                reportDefinition.measure,
 
 
-                footer
+                header:
+                reportDefinition.header,
 
+
+                footer:
+                reportDefinition.footer
 
             });
 
 
 
 
-        const layout =
 
+
+        const layout =
             layoutManager.calculate();
 
 
@@ -161,55 +173,58 @@ console.log(
 
 
 
+        const runtimeReport =
+            new RuntimeReport(
 
-        //--------------------------------------------------
-        // Pagination
-        //--------------------------------------------------
+                reportDefinition,
+
+                layout
+
+            );
+
+
+
+
+
+
+
+        if(!runtimeReport.table){
+
+
+            throw new Error(
+
+                "ReportDefinition.table is missing."
+
+            );
+
+        }
+
+
+
+
+
+
 
         const paginationManager =
-
-            new PaginationManager({
-
-
-                layout,
-
+            new PaginationManager(
 
                 measureManager
 
+            );
 
-            });
 
 
 
 
 
         const pages =
+            paginationManager.paginate(
 
-            paginationManager.paginate({
+                runtimeReport,
 
+                data.rows ?? []
 
-
-                rows:
-
-                    data.rows ?? [],
-
-
-
-                tableDefinition:
-
-                    reportDefinition.table,
-
-
-
-                header,
-
-
-
-                footer
-
-
-
-            });
+            );
 
 
 
@@ -218,25 +233,64 @@ console.log(
 
 
 
+        pages.forEach(
 
-        //--------------------------------------------------
-        // Render
-        //--------------------------------------------------
-
-        return this.renderer.render(
+            (page,index)=>{
 
 
-            reportDefinition,
+                page.totalPages =
+                    pages.length;
 
+
+
+
+                page.tableHeader =
+
+                    runtimeReport.table.showHeader
+
+                    &&
+
+                    (
+
+                        index === 0
+
+                        ||
+
+                        runtimeReport.page.print.repeatHeader
+
+                    );
+
+
+            }
+
+        );
+
+
+
+
+
+
+
+        return this.#renderer.render(
+
+            runtimeReport,
 
             pages,
 
+            {
 
-            layout
+                ...context,
 
+                header,
 
+                footer,
+
+                layout
+
+            }
 
         );
+
 
 
     }
@@ -253,15 +307,13 @@ console.log(
 
         reportDefinition,
 
-        data
-
+        data = {}
 
     ){
 
 
 
         const container =
-
             document.getElementById(
 
                 containerId
@@ -270,26 +322,24 @@ console.log(
 
 
 
+
+
         if(!container){
 
 
             throw new Error(
-                "Container not found"
-            );
 
+                `Container '${containerId}' not found.`
+
+            );
 
         }
 
 
 
 
-        container.innerHTML="";
 
-
-
-
-        container.appendChild(
-
+        container.innerHTML =
 
             this.generate(
 
@@ -297,15 +347,10 @@ console.log(
 
                 data
 
-            )
-
-
-        );
-
+            );
 
 
     }
-
 
 
 }

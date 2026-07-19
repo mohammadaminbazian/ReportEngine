@@ -2,18 +2,9 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : Page.js
- * Version   : 2.1.0
- * Description :
- *      Runtime representation of generated report page.
+ * Version   : 3.0.0
  *
- *      Created by PaginationManager.
- *
- *      Contains:
- *      - page number
- *      - rows
- *      - header
- *      - footer
- *      - height tracking
+ * Runtime page model.
  *
  * ------------------------------------------------------------
  */
@@ -22,212 +13,127 @@
 export class Page {
 
 
-    //--------------------------------------------------
-    // Private Fields
-    //--------------------------------------------------
-
-    #number;
-
-    #rows;
-
-    #header;
-
-    #table;
-
-    #footer;
-
-    #usedHeight;
-
-    #availableHeight;
-
-
-    //--------------------------------------------------
-    // Constructor
-    //--------------------------------------------------
 
     constructor({
 
-        number = 1,
+                    number = 1,
 
-        rows = [],
+                    availableHeight = 0,
 
-        header = null,
-
-        table = null,
-
-        footer = null,
-
-        usedHeight = 0,
-
-        availableHeight = 0
+                    tableHeader = true
 
 
-    } = {}) {
+                } = {}){
 
-        this.#number = number;
 
-        this.#rows = rows;
+        this.number =
+            number;
 
-        this.#header = header;
 
-        this.#table = table;
+        this.rows = [];
 
-        this.#footer = footer;
 
-        this.#usedHeight = usedHeight;
+        this.usedHeight = 0;
 
-        this.#availableHeight = availableHeight;
+
+        this.availableHeight =
+            availableHeight;
+
+
+        this.tableHeader =
+            tableHeader;
+
 
     }
 
-    //--------------------------------------------------
-    // Getters
-    //--------------------------------------------------
 
-    get number(){
 
-        return this.#number;
 
-    }
 
-    get rows(){
 
-        return this.#rows;
-
-    }
-
-    get header(){
-
-        return this.#header;
-
-    }
-
-    get table(){
-        return this.#table;
-    }
-
-    get footer(){
-        return this.#footer;
-    }
-
-    get usedHeight(){
-
-        return this.#usedHeight;
-
-    }
-
-    get availableHeight(){
-
-        return this.#availableHeight;
-
-    }
-
-    get remainingHeight(){
-
-        return (
-            this.#availableHeight
-            -
-            this.#usedHeight
-        );
-
-    }
-
-    //--------------------------------------------------
-    // Setters
-    //--------------------------------------------------
-
-    setHeader(header){
-
-        this.#header = header;
-    }
-
-    setFooter(footer){
-        this.#footer = footer;
-    }
-
-    //--------------------------------------------------
-    // Row Management
-    //--------------------------------------------------
 
     addRow(row,height){
 
-        this.#rows.push(row);
 
-        this.#usedHeight += height;
+
+        this.rows.push({
+
+            data:row,
+
+            height
+
+        });
+
+
+
+        this.usedHeight += height;
+
 
     }
+
+
+
+
+
+
+
 
     canAccept(height){
 
 
-
         return (
 
-            this.remainingHeight
+            this.usedHeight + height
 
-            >=
+            <=
 
-            height
+            this.availableHeight
+
 
         );
 
 
     }
 
+
+
+
+
+
+
     isEmpty(){
 
 
-        return this.#rows.length === 0;
+        return this.rows.length===0;
 
 
     }
 
-    //--------------------------------------------------
-    // Height
-    //--------------------------------------------------
-
-    setAvailableHeight(height){
-
-        this.#availableHeight = height;
-
-    }
-
-    //--------------------------------------------------
-    // JSON
-    //--------------------------------------------------
-
-    toJSON(){
 
 
-        return {
 
 
-            number:
-                this.#number,
 
-            rows:
-                this.#rows,
 
-            header:
-                this.#header,
+    get remainingHeight(){
 
-            table:
-                this.#table,
 
-            footer:
-                this.#footer,
+        return (
 
-            usedHeight:
-                this.#usedHeight,
+            this.availableHeight
 
-            availableHeight:
-                this.#availableHeight,
+            -
 
-            remainingHeight:
-                this.remainingHeight
+            this.usedHeight
 
-        };
+
+        );
+
 
     }
+
+
+
+
 
 }

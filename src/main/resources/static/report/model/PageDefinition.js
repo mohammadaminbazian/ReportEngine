@@ -2,22 +2,53 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : PageDefinition.js
- * Version   : 2.0.0
+ * Version   : 5.0.0
+ *
  * Description :
  *      Defines physical page properties.
  *
- *      No calculation.
- *      No layout generation.
+ * Responsibilities
+ *      ✔ Page Size
+ *      ✔ Orientation
+ *      ✔ Margins
+ *      ✔ Content Padding
+ *      ✔ Header Spacing
+ *      ✔ Footer Spacing
+ *      ✔ Print Options
+ *
+ * No Layout Calculation
+ * No Rendering
+ * No Pagination
  *
  * ------------------------------------------------------------
  */
 
-
 import { BaseDefinition } from "./BaseDefinition.js";
-
 
 export class PageDefinition extends BaseDefinition {
 
+    //--------------------------------------------------
+    // Constants
+    //--------------------------------------------------
+
+    static PAGE_SIZES = Object.freeze({
+
+        A4: {
+            width: 210,
+            height: 297
+        },
+
+        A5: {
+            width: 148,
+            height: 210
+        }
+
+    });
+
+    static ORIENTATIONS = Object.freeze([
+        "PORTRAIT",
+        "LANDSCAPE"
+    ]);
 
     //--------------------------------------------------
     // Private Fields
@@ -29,9 +60,13 @@ export class PageDefinition extends BaseDefinition {
 
     #margin;
 
+    #content;
+
+    #header;
+
+    #footer;
+
     #print;
-
-
 
     //--------------------------------------------------
     // Constructor
@@ -39,61 +74,111 @@ export class PageDefinition extends BaseDefinition {
 
     constructor({
 
-        size = "A4",
+                    size = "A4",
 
-        orientation = "PORTRAIT",
+                    orientation = "PORTRAIT",
 
-        margin = {},
+                    margin = {},
 
-        print = {}
+                    content = {},
 
-    } = {}) {
+                    header = {},
 
+                    footer = {},
 
-        super();
+                    print = {},
 
+                    metadata = {}
 
-        this.#size = size.toUpperCase();
+                } = {}) {
 
+        super(metadata);
+
+        this.#size =
+            size.toUpperCase();
 
         this.#orientation =
             orientation.toUpperCase();
 
+        //--------------------------------------------------
+        // Page Margin
+        //--------------------------------------------------
 
+        this.#margin = this.freeze({
 
-        this.#margin = {
+            top: margin.top ?? 3,
 
+            right: margin.right ?? 3,
 
-            top: margin.top ?? 1,
+            bottom: margin.bottom ?? 3,
 
-            right: margin.right ?? 1,
+            left: margin.left ?? 3
 
-            bottom: margin.bottom ?? 1,
+        });
 
-            left: margin.left ?? 1
+        //--------------------------------------------------
+        // Printable Content
+        //--------------------------------------------------
 
+        this.#content = this.freeze({
 
-        };
+            paddingTop:
+                content.paddingTop ?? 0,
 
+            paddingRight:
+                content.paddingRight ?? 0,
 
+            paddingBottom:
+                content.paddingBottom ?? 0,
 
-        this.#print = {
+            paddingLeft:
+                content.paddingLeft ?? 0
 
+        });
+
+        //--------------------------------------------------
+        // Header Layout
+        //--------------------------------------------------
+
+        this.#header = this.freeze({
+
+            marginTop:
+                header.marginTop ?? 2,
+
+            marginBottom:
+                header.marginBottom ?? 2
+
+        });
+
+        //--------------------------------------------------
+        // Footer Layout
+        //--------------------------------------------------
+
+        this.#footer = this.freeze({
+
+            marginTop:
+                footer.marginTop ?? 2,
+
+            marginBottom:
+                footer.marginBottom ?? 2
+
+        });
+
+        //--------------------------------------------------
+        // Print
+        //--------------------------------------------------
+
+        this.#print = this.freeze({
 
             repeatHeader:
                 print.repeatHeader ?? true,
 
-
             repeatFooter:
                 print.repeatFooter ?? false
 
-
-        };
-
+        });
 
     }
-
-
 
     //--------------------------------------------------
     // Getters
@@ -105,13 +190,11 @@ export class PageDefinition extends BaseDefinition {
 
     }
 
-
     get orientation() {
 
         return this.#orientation;
 
     }
-
 
     get margin() {
 
@@ -119,6 +202,23 @@ export class PageDefinition extends BaseDefinition {
 
     }
 
+    get content() {
+
+        return this.#content;
+
+    }
+
+    get header() {
+
+        return this.#header;
+
+    }
+
+    get footer() {
+
+        return this.#footer;
+
+    }
 
     get print() {
 
@@ -126,88 +226,80 @@ export class PageDefinition extends BaseDefinition {
 
     }
 
-
-
     //--------------------------------------------------
-    // Helpers
+    // Unified Layout Settings
     //--------------------------------------------------
 
-    isLandscape() {
+    get spacing() {
 
+        return {
 
-        return this.#orientation === "LANDSCAPE";
+            margin: this.#margin,
 
+            content: this.#content,
 
-    }
+            header: this.#header,
 
-
-
-    isPortrait() {
-
-
-        return this.#orientation === "PORTRAIT";
-
-
-    }
-
-    //--------------------------------------------------
-// Page Size
-//--------------------------------------------------
-
-getSize(){
-
-    const sizes = {
-
-        A4:{
-
-            width:210,
-
-            height:297
-
-        },
-
-        A5:{
-
-            width:148,
-
-            height:210
-
-        }
-
-    };
-
-    const page = sizes[this.#size];
-
-    if(!page){
-
-        throw new Error(
-            "Unsupported page size : " + this.#size
-        );
-
-    }
-
-    if(this.isLandscape()){
-
-        return{
-
-            width:page.height,
-
-            height:page.width
+            footer: this.#footer
 
         };
 
     }
 
-    return{
+    //--------------------------------------------------
+    // Orientation
+    //--------------------------------------------------
 
-        width:page.width,
+    isPortrait() {
 
-        height:page.height
+        return this.#orientation === "PORTRAIT";
 
-    };
+    }
 
-}
+    isLandscape() {
 
+        return this.#orientation === "LANDSCAPE";
+
+    }
+
+    //--------------------------------------------------
+    // Physical Page Size
+    //--------------------------------------------------
+
+    getSize() {
+
+        const page =
+            PageDefinition.PAGE_SIZES[this.#size];
+
+        if (!page) {
+
+            throw new Error(
+                `Unsupported page size : ${this.#size}`
+            );
+
+        }
+
+        if (this.isLandscape()) {
+
+            return {
+
+                width: page.height,
+
+                height: page.width
+
+            };
+
+        }
+
+        return {
+
+            width: page.width,
+
+            height: page.height
+
+        };
+
+    }
 
     //--------------------------------------------------
     // Validation
@@ -215,70 +307,38 @@ getSize(){
 
     validate() {
 
+        const result =
+            super.validate();
 
-        const errors = [];
+        const errors =
+            [...result.errors];
 
-
-
-        const sizes = [
-
-            "A4",
-
-            "A5"
-
-        ];
-
-
-
-        if (!sizes.includes(this.#size)) {
-
+        if (!(this.#size in PageDefinition.PAGE_SIZES)) {
 
             errors.push(
-
-                "Unsupported page size"
-
+                `Unsupported page size : ${this.#size}`
             );
 
         }
 
-
-
-        if (
-
-            this.#orientation !== "PORTRAIT"
-
-            &&
-
-            this.#orientation !== "LANDSCAPE"
-
-        ) {
-
+        if (!PageDefinition.ORIENTATIONS.includes(this.#orientation)) {
 
             errors.push(
-
-                "Unsupported orientation"
-
+                `Unsupported orientation : ${this.#orientation}`
             );
 
         }
-
-
 
         return {
 
-
-            valid: errors.length === 0,
-
+            valid:
+                errors.length === 0,
 
             errors
 
-
         };
 
-
     }
-
-
 
     //--------------------------------------------------
     // JSON
@@ -286,26 +346,26 @@ getSize(){
 
     toJSON() {
 
-
         return {
 
+            ...super.toJSON(),
 
             size: this.#size,
 
-
             orientation: this.#orientation,
-
 
             margin: this.#margin,
 
+            content: this.#content,
+
+            header: this.#header,
+
+            footer: this.#footer,
 
             print: this.#print
 
-
         };
 
-
     }
-
 
 }

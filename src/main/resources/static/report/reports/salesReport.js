@@ -21,7 +21,7 @@ const page = new PageDefinition({
     size:"A4",//"A4",
     orientation:"LANDSCAPE",//"LANDSCAPE","PORTRAIT",
     margin:{
-        top:1,
+        top:10,
         right:3,
         bottom:1,
         left:2
@@ -60,6 +60,18 @@ new MeasureDefinition({
 const header = new HeaderDefinition({
 
     repeat: true,
+    height:40,
+    margin:{
+        top:5,
+        bottom:5
+    },
+
+    padding:{
+        top:2,
+        bottom:2,
+        left:3,
+        right:3
+    },
 
     sections:{
        top: [
@@ -383,7 +395,7 @@ const table = new TableDefinition({
 
 });
 
-const invoiceReport = new ReportDefinition({
+const salesReport = new ReportDefinition({
 
     name:"salesReport",
 
@@ -399,4 +411,4 @@ const invoiceReport = new ReportDefinition({
 
 });
 
-export default invoiceReport;
+export default salesReport;
