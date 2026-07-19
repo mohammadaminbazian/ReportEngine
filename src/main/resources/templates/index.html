@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title th:text="${reportName}">
+        Report Viewer
+    </title>
+
+    <!-- Report CSS -->
+    <link rel="stylesheet"
+          href="/report/css/report.css">
+
+</head>
+
+<body>
+
+<div class="toolbar">
+
+    <button id="btnPrint">
+        چاپ
+    </button>
+
+</div>
+
+
+<div id="loading">
+    Loading...
+</div>
+
+
+<div id="report-root"></div>
+
+
+<script th:inline="javascript">
+
+    const reportName =
+        [[${reportName}]];
+
+</script>
+
+<script type="module" src="/js/app.js"></script>
+
+<script>
+
+    //--------------------------------------------------
+    // Print
+    //--------------------------------------------------
+
+    document
+        .getElementById("btnPrint")
+        .addEventListener(
+
+            "click",
+
+            () => window.print()
+
+        );
+
+</script>
+
+</body>
+
+</html>
+
+
+<!--
+<div id="loading">
+    Loading...
+</div>
+
+
+<div id="report-root"></div>
+
+
+<script th:inline="javascript">
+
+    const reportName =
+        [[${reportName}]];
+
+
+</script>
+
+
+<script type="module" src="/js/app.js"></script>-->

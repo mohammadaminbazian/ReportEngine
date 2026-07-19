@@ -1,0 +1,12 @@
+| جلسه | هدف                             |
+| ---- | ------------------------------- |
+| 1    | ساخت پروژه و Maven و Java 21    ✅|
+| 2    | ساخت Entity و جدول دیتابیس      ✅|
+| 3    | Repository و JPA                |
+| 4    | Service و Dependency Injection  |
+| 5    | Controller و REST API           |
+| 6    | ارسال JSON با Postman           |
+| 7    | اعتبارسنجی با Validation        |
+| 8    | DTO و تبدیل Entity به DTO       |
+| 9    | مدیریت Exception                |
+| 10   | جمع‌بندی و ساخت نسخه Production |
