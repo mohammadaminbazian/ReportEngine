@@ -229,11 +229,11 @@ line-height:var(--report-line-height);
 
 .header-section{
 
-    width:100%;
+   width:100%;
 
-    display:flex;
+    /*display:flex;
 
-    box-sizing:border-box;
+    box-sizing:border-box;*/
 
 }
 

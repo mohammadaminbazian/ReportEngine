@@ -21,7 +21,7 @@ const page = new PageDefinition({
     size:"A4",//"A4",
     orientation:"LANDSCAPE",//"LANDSCAPE","PORTRAIT",
     margin:{
-        top:10,
+        top:1,
         right:3,
         bottom:1,
         left:2
@@ -60,14 +60,14 @@ new MeasureDefinition({
 const header = new HeaderDefinition({
 
     repeat: true,
-    height:40,
+    height:35,
     margin:{
         top:1,
         bottom:1
     },
 
     padding:{
-        top:1,
+        top:0,
         bottom:1,
         left:1,
         right:1
@@ -87,7 +87,7 @@ const header = new HeaderDefinition({
 
                 },
 
-                align: "left"
+                align: "center"
 
             }
 
@@ -214,7 +214,7 @@ const header = new HeaderDefinition({
 
                 },
 
-                align: "left"
+                align: "right"
 
             }
 
@@ -253,7 +253,6 @@ const footer = new FooterDefinition({
 
 const table = new TableDefinition({
      showHeader:true,
-
     columns:[
 
         new ColumnDefinition({

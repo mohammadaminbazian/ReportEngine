@@ -1066,8 +1066,20 @@ ${value}
 
     ){
 
+        // اگر قبلاً Resolve شده باشد
+        if (element.value !== undefined) {
 
+            if (
+                element.binding?.showLabel &&
+                element.label
+            ) {
+                return `${element.label} : ${element.value}`;
+            }
 
+            return element.value;
+        }
+
+        // حالت قبلی
         if(!element.binding){
 
 
