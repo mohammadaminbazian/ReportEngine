@@ -66,6 +66,16 @@ font-size:var(--report-font-size);
 
 line-height:var(--report-line-height);
 
+    position:relative;
+
+    box-sizing:border-box;
+
+    page-break-after:always;
+
+    overflow:hidden;
+
+    background:white;
+
 }
 
 /* 

@@ -1,196 +1,148 @@
 /*!
  * ------------------------------------------------------------
  * Report Engine
- * File : RuntimeReport.js
- * Version : 5.3.0
+ * File      : RuntimeReport.js
+ * Version   : 6.0.0
  *
- * Description:
+ * Description :
+ *      Runtime container for report execution.
  *
- * Runtime state of report generation.
+ * Responsibilities:
+ *      ✔ Holds runtime data only
+ *      ✔ No calculation
+ *      ✔ No rendering
+ *      ✔ No pagination
+ *      ✔ No binding
  *
- * Keeps original ReportDefinition.
- * Adds calculated layout.
- * Keeps resolved runtime data.
+ * Contract:
  *
- * No Rendering.
- * No Pagination.
+ * {
+ *      definition,
+ *      layout,
+ *      header,
+ *      footer,
+ *      table,
+ *      measure,
+ *      context
+ * }
  *
  * ------------------------------------------------------------
  */
 
-
 export class RuntimeReport {
 
-
-    constructor(
-
-        definition,
-
-        layout,
-
-        resolved = {}
-
-    ){
-
-
-        if(!definition){
-
-            throw new Error(
-                "ReportDefinition is required."
-            );
-
-        }
-
-
-        this.definition =
-            definition;
-
-
-
-        this._layout =
-            layout;
-
-
-
-        this.resolved =
-            resolved;
-
-
-    }
-
-
-
     //--------------------------------------------------
-    // Report Metadata
+    // Private Fields
     //--------------------------------------------------
 
-    get name(){
+    #definition;
 
-        return this.definition.name;
+    #layout;
 
-    }
+    #header;
 
+    #footer;
 
+    #table;
 
+    #measure;
 
-    //--------------------------------------------------
-    // Definitions
-    //--------------------------------------------------
-
-    get page(){
-
-        return this.definition.page;
-
-    }
-
-
-
-    get header(){
-
-        return this.definition.header;
-
-    }
-
-
-
-    get footer(){
-
-        return this.definition.footer;
-
-    }
-
-
-
-    get table(){
-
-        return this.definition.table;
-
-    }
-
-
-
-    get measure(){
-
-        return this.definition.measure;
-
-    }
-
-
-
-    get options(){
-
-        return this.definition.options;
-
-    }
-
-
-
+    #context;
 
     //--------------------------------------------------
-    // Runtime Layout
+    // Constructor
     //--------------------------------------------------
 
-    get layout(){
+    constructor({
 
-        return this._layout;
+                    definition,
+
+                    layout,
+
+                    header = null,
+
+                    footer = null,
+
+                    table = null,
+
+                    measure = null,
+
+                    context = {}
+
+                } = {}) {
+
+        this.#definition = definition;
+
+        this.#layout = layout;
+
+        this.#header = header;
+
+        this.#footer = footer;
+
+        this.#table = table;
+
+        this.#measure = measure;
+
+        this.#context = context;
 
     }
-
-
 
     //--------------------------------------------------
-    // Runtime Resolved Values
+    // Getters
     //--------------------------------------------------
 
-    get resolvedHeader(){
-
-        return this.resolved.header;
-
+    get definition() {
+        return this.#definition;
     }
 
-
-
-    get resolvedFooter(){
-
-        return this.resolved.footer;
-
+    get layout() {
+        return this.#layout;
     }
 
-
-
-    get context(){
-
-        return this.resolved.context ?? {};
-
+    get header() {
+        return this.#header;
     }
 
+    get footer() {
+        return this.#footer;
+    }
 
+    get table() {
+        return this.#table;
+    }
+
+    get measure() {
+        return this.#measure;
+    }
+
+    get context() {
+        return this.#context;
+    }
 
     //--------------------------------------------------
-    // Validation Helpers
+    // JSON
     //--------------------------------------------------
 
-    hasTable(){
+    toJSON() {
 
-        return this.table !== null;
+        return {
+
+            definition: this.#definition,
+
+            layout: this.#layout,
+
+            header: this.#header,
+
+            footer: this.#footer,
+
+            table: this.#table,
+
+            measure: this.#measure,
+
+            context: this.#context
+
+        };
 
     }
-
-
-
-    hasHeader(){
-
-        return this.header !== null;
-
-    }
-
-
-
-    hasFooter(){
-
-        return this.footer !== null;
-
-    }
-
 
 }

@@ -2,112 +2,70 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : HtmlRenderer.js
- * Version   : 5.2.0
+ * Version   : 6.0.0
  *
  * Description :
- *      Converts RuntimeReport + Page model to HTML.
+ *      Converts RuntimeReport to HTML.
  *
- * Responsibilities:
- *      ✔ Header
- *      ✔ Footer
- *      ✔ Table
- *      ✔ Elements
+ * Responsibilities
+ *      ✔ Render Header
+ *      ✔ Render Footer
+ *      ✔ Render Table
+ *      ✔ Render Elements
  *
  * No Layout Calculation
  * No Pagination
  *
- * Compatible with:
- *      RuntimeReport 5.x
- *      PaginationManager 6.x
- *
  * ------------------------------------------------------------
  */
 
-
-import { BindingResolver }
-    from "../resolver/BindingResolver.js";
-
-
-
 export class HtmlRenderer {
 
+    //--------------------------------------------------
+    // Constructor
+    //--------------------------------------------------
 
-
-    constructor(){
-
-
-        this.bindingResolver =
-            new BindingResolver();
-
-
-    }
-
-
-
-
-
+    constructor(){}
 
     //--------------------------------------------------
     // Render
     //--------------------------------------------------
 
-    render(
-
-        runtimeReport,
-
-        pages,
-
-        context = {}
-
-    ){
-
+    render(runtimeReport, pages){
 
         return pages
-
             .map(page =>
 
                 this.renderPage(
 
                     runtimeReport,
 
-                    page,
-
-                    {
-                        ...context,
-
-                        measure:
-                        runtimeReport.measure
-
-                    }
+                    page
 
                 )
 
             )
-
             .join("");
 
     }
-
-
-
-
-
-
 
     //--------------------------------------------------
     // Page
     //--------------------------------------------------
 
-    renderPage(
+    renderPage(runtimeReport, page){
 
-        runtimeReport,
+        const context={
 
-        page,
+            ...runtimeReport.context,
 
-        context
+            pageNumber:page.number,
 
-    ){
+            totalPages:page.totalPages,
 
+            measure:runtimeReport.measure
+
+        };
 
         return `
 
@@ -115,29 +73,30 @@ export class HtmlRenderer {
 class="report-page"
 data-page="${page.number}"
 style="
-font-family:${context.measure?.font ?? 'Arial'};
-font-size:${context.measure?.fontSize ?? 10}pt;
+position:relative;
+width:${runtimeReport.layout.pageWidth}mm;
+height:${runtimeReport.layout.pageHeight}mm;
+overflow:hidden;
+box-sizing:border-box;
+
+font-family:${runtimeReport.measure.font};
+font-size:${runtimeReport.measure.fontSize}pt;
+line-height:${runtimeReport.measure.lineHeight}mm;
 ">
 
-
-
 ${this.renderHeader(
-            context.header,
-            {
-                ...context,
 
-                pageNumber:
-                page.number,
+            runtimeReport,
 
-                totalPages:
-                page.totalPages
+            runtimeReport.header,
 
-            }
+            context
+
         )}
 
-
-
 ${this.renderTable(
+
+            runtimeReport,
 
             runtimeReport.table,
 
@@ -147,13 +106,11 @@ ${this.renderTable(
 
         )}
 
-
-
 ${this.renderFooter(
 
-            runtimeReport.footer,
+            runtimeReport,
 
-            context.footer,
+            runtimeReport.footer,
 
             page,
 
@@ -161,19 +118,11 @@ ${this.renderFooter(
 
         )}
 
-
-
 </section>
 
 `;
 
     }
-
-
-
-
-
-
 
     //--------------------------------------------------
     // Header
@@ -181,12 +130,13 @@ ${this.renderFooter(
 
     renderHeader(
 
+        runtimeReport,
+
         header,
 
         context
 
     ){
-
 
         if(!header){
 
@@ -194,31 +144,81 @@ ${this.renderFooter(
 
         }
 
-
-
         return `
 
 <header
+
 class="report-header"
-style="${this.renderBoxStyle(header)}">
 
+style="
 
-${(header.sections ?? [])
+position:absolute;
 
-            .map(section =>
+left:0;
 
-                this.renderHeaderSection(
+top:${runtimeReport.layout.headerTop}mm;
 
-                    section,
+width:${runtimeReport.layout.printableWidth}mm;
 
-                    context
+${this.renderBoxStyle(header)}
 
-                )
+">
 
-            )
+${this.renderItems(
 
-            .join("")}
+            header.sections.top,
 
+            context
+
+        )}
+
+<div class="header-middle">
+
+<div class="header-right">
+
+${this.renderItems(
+
+            header.sections.middle.right,
+
+            context
+
+        )}
+
+</div>
+
+<div class="header-center">
+
+${this.renderItems(
+
+            header.sections.middle.center,
+
+            context
+
+        )}
+
+</div>
+
+<div class="header-left">
+
+${this.renderItems(
+
+            header.sections.middle.left,
+
+            context
+
+        )}
+
+</div>
+
+</div>
+
+${this.renderItems(
+
+            header.sections.bottom,
+
+            context
+
+        )}
 
 </header>
 
@@ -226,145 +226,21 @@ ${(header.sections ?? [])
 
     }
 
-
-
-
-
-
-
-
     //--------------------------------------------------
-    // Header Section
+    // Render Items
     //--------------------------------------------------
 
-    renderHeaderSection(
+    renderItems(
 
-        section,
+        items=[],
 
         context
 
     ){
 
+        return items
 
-        if(!section){
-
-            return "";
-
-        }
-
-
-
-
-        //------------------------------------------
-        // Three Column
-        //------------------------------------------
-
-        if(section.layout === "three-column"){
-
-
-
-            return `
-
-<div
-class="header-section header-three-column"
-style="${this.renderBoxStyle(section)}">
-
-
-
-<div class="header-column header-right">
-
-${(section.columns?.right ?? [])
-
-                .map(item =>
-
-                    this.renderElement(
-
-                        item,
-
-                        context
-
-                    )
-
-                )
-
-                .join("")}
-
-</div>
-
-
-
-
-<div class="header-column header-center">
-
-${(section.columns?.center ?? [])
-
-                .map(item =>
-
-                    this.renderElement(
-
-                        item,
-
-                        context
-
-                    )
-
-                )
-
-                .join("")}
-
-</div>
-
-
-
-
-<div class="header-column header-left">
-
-${(section.columns?.left ?? [])
-
-                .map(item =>
-
-                    this.renderElement(
-
-                        item,
-
-                        context
-
-                    )
-
-                )
-
-                .join("")}
-
-</div>
-
-
-
-</div>
-
-`;
-
-        }
-
-
-
-
-
-
-
-        //------------------------------------------
-        // Full Width
-        //------------------------------------------
-
-        return `
-
-<div
-class="header-section"
-style="${this.renderBoxStyle(section)}">
-
-
-${(section.items ?? [])
-
-            .map(item =>
+            .map(item=>
 
                 this.renderElement(
 
@@ -376,31 +252,16 @@ ${(section.items ?? [])
 
             )
 
-            .join("")}
-
-
-
-</div>
-
-`;
+            .join("");
 
     }
-
-
-
-
-
-
-
-
-
     //--------------------------------------------------
     // Footer
     //--------------------------------------------------
 
     renderFooter(
 
-        footerDefinition,
+        runtimeReport,
 
         footer,
 
@@ -410,31 +271,19 @@ ${(section.items ?? [])
 
     ){
 
-
-
-        if(!footerDefinition || !footer){
+        if(!footer){
 
             return "";
 
         }
 
-
-
-
-
         if(
 
-            typeof footerDefinition.shouldRender === "function"
+            footer.lastPageOnly
 
             &&
 
-            !footerDefinition.shouldRender(
-
-                page.number,
-
-                page.totalPages
-
-            )
+            page.number !== page.totalPages
 
         ){
 
@@ -442,40 +291,39 @@ ${(section.items ?? [])
 
         }
 
-
-
-
-
-        const footerContext = {
-
+        const footerContext={
 
             ...context,
 
+            pageNumber:page.number,
 
-            pageNumber:
-            page.number,
-
-
-            totalPages:
-            page.totalPages
-
+            totalPages:page.totalPages
 
         };
-
-
-
-
 
         return `
 
 <footer
+
 class="report-footer"
-style="${this.renderBoxStyle(footer)}">
 
+style="
 
-${(footer.rows ?? [])
+position:absolute;
 
-            .map(item =>
+left:0;
+
+top:${runtimeReport.layout.footerTop}mm;
+
+width:${runtimeReport.layout.printableWidth}mm;
+
+${this.renderBoxStyle(footer)}
+
+">
+
+${footer.rows
+
+            .map(item=>
 
                 this.renderElement(
 
@@ -489,20 +337,11 @@ ${(footer.rows ?? [])
 
             .join("")}
 
-
 </footer>
 
 `;
 
     }
-
-
-
-
-
-
-
-
 
     //--------------------------------------------------
     // Table
@@ -510,7 +349,9 @@ ${(footer.rows ?? [])
 
     renderTable(
 
-        tableDefinition,
+        runtimeReport,
+
+        table,
 
         page,
 
@@ -518,42 +359,59 @@ ${(footer.rows ?? [])
 
     ){
 
-
-
-        if(!tableDefinition){
+        if(!table){
 
             return "";
 
         }
 
-
-
-
-
         return `
 
+<div
+
+class="report-table-container"
+
+style="
+
+position:absolute;
+
+left:${runtimeReport.layout.tableLeft}mm;
+
+top:${runtimeReport.layout.bodyTop}mm;
+
+width:${runtimeReport.layout.tableWidth}mm;
+
+">
+
 <table
-class="report-table">
 
+class="report-table"
 
+style="
+
+width:100%;
+
+table-layout:fixed;
+
+border-collapse:collapse;
+
+">
 
 ${
 
-            tableDefinition.showHeader
+            table.showHeader
 
             &&
 
             page.tableHeader
 
-
                 ?
 
                 this.renderTableHeader(
 
-                    tableDefinition
+                    table
 
                 )
-
 
                 :
 
@@ -561,21 +419,17 @@ ${
 
         }
 
-
-
-
 <tbody>
-
 
 ${page.rows
 
-            .map(row =>
+            .map(row=>
 
                 this.renderRow(
 
-                    tableDefinition,
+                    table,
 
-                    row.data,
+                    row,
 
                     context
 
@@ -585,25 +439,15 @@ ${page.rows
 
             .join("")}
 
-
-
 </tbody>
 
-
-
 </table>
+
+</div>
 
 `;
 
     }
-
-
-
-
-
-
-
-
 
     //--------------------------------------------------
     // Table Header
@@ -611,10 +455,9 @@ ${page.rows
 
     renderTableHeader(
 
-        tableDefinition
+        table
 
     ){
-
 
         return `
 
@@ -622,33 +465,27 @@ ${page.rows
 
 <tr>
 
+${table.visibleColumns
 
-${tableDefinition.visibleColumns
-
-            .map(column =>
-
-
-                `
+            .map(column=>`
 
 <th
 
 style="
+
 width:${column.width}mm;
+
 text-align:${column.thAlign ?? "center"};
+
 ">
 
 ${column.title}
 
 </th>
 
-`
-
-
-            )
+`)
 
             .join("")}
-
-
 
 </tr>
 
@@ -658,68 +495,57 @@ ${column.title}
 
     }
 
-
-
-
-
-
-
-
-
     //--------------------------------------------------
     // Table Row
     //--------------------------------------------------
 
     renderRow(
 
-        tableDefinition,
+        table,
 
-        row,
+        rowInfo,
 
         context
 
     ){
 
+        const row=rowInfo.data;
 
         return `
 
 <tr>
 
+${table.visibleColumns
 
-${tableDefinition.visibleColumns
-
-            .map(column =>
-
-
-                `
+            .map(column=>`
 
 <td
 
 style="
-width:${column.width}mm;
+
 text-align:${column.tdAlign ?? "right"};
+
+width:${column.width}mm;
+
+height:${rowInfo.height}mm;
+
 ">
 
 ${this.resolveValue(
 
-                    column,
+                column,
 
-                    row,
+                row,
 
-                    context
+                context
 
-                )}
+            )}
 
 </td>
 
-`
-
-
-            )
+`)
 
             .join("")}
-
-
 
 </tr>
 
@@ -730,153 +556,57 @@ ${this.resolveValue(
     // Element
     //--------------------------------------------------
 
-    renderElement(
-
-        element,
-
-        context
-
-    ){
-
+    renderElement(element, context){
 
         if(!element){
-
             return "";
-
         }
-
-
 
         switch(element.type){
 
-
             case "text":
-
-                return this.renderText(
-
-                    element,
-
-                    context
-
-                );
-
-
+                return this.renderText(element, context);
 
             case "title":
-
-                return this.renderTitle(
-
-                    element
-
-                );
-
-
+                return this.renderTitle(element);
 
             case "logo":
-
             case "image":
-
-                return this.renderImage(
-
-                    element
-
-                );
-
-
+                return this.renderImage(element);
 
             case "pageNumber":
-
-                return this.renderPageNumber(
-
-                    context
-
-                );
-
-
+                return this.renderPageNumber(context);
 
             case "signature":
-
-                return this.renderSignature(
-
-                    element,
-
-                    context
-
-                );
-
-
+                return this.renderSignature(element, context);
 
             case "line":
-
                 return "<hr class='report-line'>";
 
-
-
             case "html":
-
                 return element.html ?? "";
 
-
-
             default:
-
-                return this.renderText(
-
-                    element,
-
-                    context
-
-                );
+                return this.renderText(element, context);
 
         }
 
-
     }
-
-
-
-
-
-
-
 
 
     //--------------------------------------------------
     // Text
     //--------------------------------------------------
 
-    renderText(
-
-        element,
-
-        context
-
-    ){
-
-
-        const value =
-
-            this.resolveBinding(
-
-                element,
-
-                context
-
-            );
-
-
-
-
+    renderText(element, context){
 
         return `
 
 <div
-
 class="report-text"
-
 style="${this.renderElementStyle(element)}">
 
-${value}
+${this.resolveBinding(element, context)}
 
 </div>
 
@@ -885,30 +615,16 @@ ${value}
     }
 
 
-
-
-
-
-
-
-
     //--------------------------------------------------
     // Title
     //--------------------------------------------------
 
-    renderTitle(
-
-        element
-
-    ){
-
+    renderTitle(element){
 
         return `
 
 <div
-
 class="report-title"
-
 style="${this.renderElementStyle(element)}">
 
 ${element.value ?? ""}
@@ -920,125 +636,63 @@ ${element.value ?? ""}
     }
 
 
-
-
-
-
-
-
-
     //--------------------------------------------------
     // Image
     //--------------------------------------------------
 
-    renderImage(
-
-        element
-
-    ){
-
+    renderImage(element){
 
         return `
 
 <img
-
 class="report-image"
-
 src="${element.src}"
 
 style="
 width:${element.width ?? 15}mm;
 height:${element.height ?? 15}mm;
 object-fit:${element.fit ?? "contain"};
-"
-
-/>
+"/>
 
 `;
 
     }
-
-
-
-
-
-
-
 
 
     //--------------------------------------------------
     // Page Number
     //--------------------------------------------------
 
-    renderPageNumber(
-
-        context
-
-    ){
-
+    renderPageNumber(context){
 
         return `
 
 <div class="report-page-number">
 
-صفحه
+صفحه ${context.pageNumber}
 
-${context.pageNumber}
-
-از
-
-${context.totalPages}
+از ${context.totalPages}
 
 </div>
 
 `;
 
     }
-
-
-
-
-
-
-
 
 
     //--------------------------------------------------
     // Signature
     //--------------------------------------------------
 
-    renderSignature(
-
-        element,
-
-        context
-
-    ){
-
-
-        const value =
-
-            this.resolveBinding(
-
-                element,
-
-                context
-
-            );
-
-
-
-
+    renderSignature(element, context){
 
         return `
 
 <div
-
 class="report-signature"
-
 style="${this.renderElementStyle(element)}">
 
-${value}
+${this.resolveBinding(element, context)}
 
 </div>
 
@@ -1047,504 +701,182 @@ ${value}
     }
 
 
-
-
-
-
-
-
-
     //--------------------------------------------------
     // Binding
     //--------------------------------------------------
 
-    resolveBinding(
+    resolveBinding(element){
 
-        element,
+        if(element.value !== undefined){
 
-        context
-
-    ){
-
-        // اگر قبلاً Resolve شده باشد
-        if (element.value !== undefined) {
-
-            if (
+            if(
                 element.binding?.showLabel &&
                 element.label
-            ) {
+            ){
                 return `${element.label} : ${element.value}`;
             }
 
             return element.value;
         }
 
-        // حالت قبلی
-        if(!element.binding){
-
-
-            return (
-
-                element.value
-
-                ??
-
-                element.text
-
-                ??
-
-                ""
-
-            );
-
-        }
-
-
-
-
-
-        return BindingResolver.resolve(
-
-            element.binding,
-
-            context
-
+        return (
+            element.text ??
+            ""
         );
 
-
     }
-
-
-
-
-
-
-
 
 
     //--------------------------------------------------
     // Cell Value
     //--------------------------------------------------
 
-    resolveValue(
-
-        column,
-
-        row,
-
-        context
-
-    ){
-
-
-
-        if(column.binding){
-
-
-            return BindingResolver.resolve(
-
-                column.binding,
-
-                {
-
-                    ...context,
-
-                    row
-
-                }
-
-            );
-
-
-        }
-
-
-
-
+    resolveValue(column, row){
 
         return row[column.field] ?? "";
 
-
     }
-
-
-
-
-
-
-
 
 
     //--------------------------------------------------
     // Box Style
     //--------------------------------------------------
 
-    renderBoxStyle(
-
-        box = {}
-
-    ){
-
+    renderBoxStyle(box = {}){
 
         const style = [];
 
-
-
-
-
         if(box.width != null){
-
-
-            style.push(
-
-                `width:${box.width}mm`
-
-            );
-
+            style.push(`width:${box.width}mm`);
         }
-
-
-
-
 
         if(box.height != null){
-
-
-            style.push(
-
-                `height:${box.height}mm`
-
-            );
-
+            style.push(`height:${box.height}mm`);
         }
-
-
-
-
-
-
 
         if(box.padding){
 
+            style.push(
 
-            style.push(`
-
-padding:
+                `padding:
 ${box.padding.top ?? 0}mm
 ${box.padding.right ?? 0}mm
 ${box.padding.bottom ?? 0}mm
-${box.padding.left ?? 0}mm
+${box.padding.left ?? 0}mm`
 
-`.replace(/\s+/g," "));
+                    .replace(/\s+/g," ")
 
+            );
 
         }
-
-
-
-
-
-
 
         if(box.margin){
 
+            style.push(
 
-            style.push(`
-
-margin:
+                `margin:
 ${box.margin.top ?? 0}mm
 ${box.margin.right ?? 0}mm
 ${box.margin.bottom ?? 0}mm
-${box.margin.left ?? 0}mm
+${box.margin.left ?? 0}mm`
 
-`.replace(/\s+/g," "));
+                    .replace(/\s+/g," ")
 
+            );
 
         }
-
-
-
-
-
-
 
         if(box.background){
-
-
-            style.push(
-
-                `background:${box.background}`
-
-            );
-
-
+            style.push(`background:${box.background}`);
         }
-
-
-
-
-
-
 
         if(box.border){
-
-
-            style.push(
-
-                `border:${box.border}`
-
-            );
-
-
+            style.push(`border:${box.border}`);
         }
-
-
-
-
-
 
         return style.join(";");
 
-
     }
-
-
-
-
-
-
-
 
 
     //--------------------------------------------------
     // Element Style
     //--------------------------------------------------
 
-    renderElementStyle(
+    renderElementStyle(element = {}){
 
-        element = {}
-
-    ){
-
-
-        const style=[];
-
-
-
-
-
-
+        const style = [];
 
         if(element.align){
-
-
-            style.push(
-
-                `text-align:${element.align}`
-
-            );
-
-
+            style.push(`text-align:${element.align}`);
         }
-
-
-
-
-
-
 
         if(element.fontFamily){
-
-
-            style.push(
-
-                `font-family:${element.fontFamily}`
-
-            );
-
-
+            style.push(`font-family:${element.fontFamily}`);
         }
-
-
-
-
-
-
 
         if(element.fontSize){
-
-
-            style.push(
-
-                `font-size:${element.fontSize}pt`
-
-            );
-
-
+            style.push(`font-size:${element.fontSize}pt`);
         }
-
-
-
-
-
-
 
         if(element.fontWeight){
-
-
-            style.push(
-
-                `font-weight:${element.fontWeight}`
-
-            );
-
-
+            style.push(`font-weight:${element.fontWeight}`);
         }
-
-
-
-
-
-
 
         if(element.color){
-
-
-            style.push(
-
-                `color:${element.color}`
-
-            );
-
-
+            style.push(`color:${element.color}`);
         }
-
-
-
-
-
-
 
         if(element.width){
-
-
-            style.push(
-
-                `width:${element.width}mm`
-
-            );
-
-
+            style.push(`width:${element.width}mm`);
         }
-
-
-
-
-
-
 
         if(element.height){
-
-
-            style.push(
-
-                `height:${element.height}mm`
-
-            );
-
-
+            style.push(`height:${element.height}mm`);
         }
-
-
-
-
-
-
 
         if(element.padding){
 
+            style.push(
 
-            style.push(`
-
-padding:
+                `padding:
 ${element.padding.top ?? 0}mm
 ${element.padding.right ?? 0}mm
 ${element.padding.bottom ?? 0}mm
-${element.padding.left ?? 0}mm
+${element.padding.left ?? 0}mm`
 
-`.replace(/\s+/g," "));
+                    .replace(/\s+/g," ")
 
+            );
 
         }
-
-
-
-
-
-
 
         if(element.margin){
 
+            style.push(
 
-            style.push(`
-
-margin:
+                `margin:
 ${element.margin.top ?? 0}mm
 ${element.margin.right ?? 0}mm
 ${element.margin.bottom ?? 0}mm
-${element.margin.left ?? 0}mm
+${element.margin.left ?? 0}mm`
 
-`.replace(/\s+/g," "));
+                    .replace(/\s+/g," ")
 
+            );
 
         }
-
-
-
-
-
-
 
         if(element.display){
-
-
-            style.push(
-
-                `display:${element.display}`
-
-            );
-
-
+            style.push(`display:${element.display}`);
         }
-
-
-
-
-
-
 
         if(element.flex){
-
-
-            style.push(
-
-                `flex:${element.flex}`
-
-            );
-
-
+            style.push(`flex:${element.flex}`);
         }
-
-
-
-
-
 
         return style.join(";");
 
-
     }
-
-
 
 }

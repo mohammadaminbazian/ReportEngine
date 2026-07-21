@@ -2,21 +2,57 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : LayoutManager.js
- * Version   : 5.0.0
+ * Version   : 6.0.0
  *
- * Description:
+ * Description :
  *      Calculates physical report layout.
  *
- * No Rendering.
- * No Pagination.
+ * Responsibilities
+ *      ✔ Page Area
+ *      ✔ Printable Area
+ *      ✔ Header Area
+ *      ✔ Body Area
+ *      ✔ Footer Area
+ *      ✔ Table Area
+ *
+ * No Rendering
+ * No Pagination
+ * No Runtime State
+ *
+ * Unit :
+ *      millimeter
+ *
+ * Contract :
+ *
+ * {
+ *      pageWidth,
+ *      pageHeight,
+ *
+ *      printableWidth,
+ *      printableHeight,
+ *
+ *      headerTop,
+ *      headerHeight,
+ *
+ *      footerTop,
+ *      footerHeight,
+ *
+ *      bodyTop,
+ *      bodyBottom,
+ *      bodyHeight,
+ *
+ *      tableLeft,
+ *      tableWidth
+ * }
  *
  * ------------------------------------------------------------
  */
 
-
 export class LayoutManager {
 
-
+    //--------------------------------------------------
+    // Private Fields
+    //--------------------------------------------------
 
     #page;
 
@@ -26,7 +62,9 @@ export class LayoutManager {
 
     #footer;
 
-
+    //--------------------------------------------------
+    // Constructor
+    //--------------------------------------------------
 
     constructor({
 
@@ -38,357 +76,161 @@ export class LayoutManager {
 
                     footer = null
 
+                }) {
 
-                }){
+        this.#page = pageDefinition;
 
+        this.#measure = measureDefinition;
 
-        this.#page =
-            pageDefinition;
+        this.#header = header;
 
-
-        this.#measure =
-            measureDefinition;
-
-
-        this.#header =
-            header;
-
-
-        this.#footer =
-            footer;
-
+        this.#footer = footer;
 
     }
 
+    //--------------------------------------------------
+    // Calculate
+    //--------------------------------------------------
 
+    calculate() {
 
+        //--------------------------------------------------
+        // Page
+        //--------------------------------------------------
 
+        const pageSize = this.#page.getSize();
 
+        const spacing = this.#page.spacing;
 
-    calculate(){
+        const margin = spacing.margin;
 
+        const pageWidth = pageSize.width;
 
+        const pageHeight = pageSize.height;
 
-        const pageSize =
-
-            this.#page.getSize();
-
-
-
-
-        const spacing =
-
-            this.#page.spacing;
-
-
-
-
-
-        const margin =
-
-            spacing.margin;
-
-
-
-
-        const pageWidth =
-
-            pageSize.width;
-
-
-
-        const pageHeight =
-
-            pageSize.height;
-
-
-
-
-
-
-        //------------------------------------------
+        //--------------------------------------------------
         // Printable
-        //------------------------------------------
-
+        //--------------------------------------------------
 
         const printableWidth =
-
             pageWidth
-            -
-            margin.left
-            -
-            margin.right;
-
-
+            - margin.left
+            - margin.right;
 
         const printableHeight =
-
             pageHeight
-            -
-            margin.top
-            -
-            margin.bottom;
+            - margin.top
+            - margin.bottom;
 
-
-
-
-
-
-
-
-        //------------------------------------------
+        //--------------------------------------------------
         // Header
-        //------------------------------------------
-
+        //--------------------------------------------------
 
         const headerHeight =
-
-            this.#header
-
-                ?
-
-                this.#header.getHeight()
-
-                :
-
-                0;
-
-
-
+            this.#header?.height ?? 0;
 
         const headerTop =
-
-            margin.top
-
-            +
-
+            margin.top +
             spacing.header.marginTop;
 
-
-
-
-
-        const headerBottom =
-
-            headerTop
-
-            +
-
-            headerHeight
-
-            +
-
-            spacing.header.marginBottom;
-
-
-
-
-
-
-
-
-        //------------------------------------------
+        //--------------------------------------------------
         // Footer
-        //------------------------------------------
-
+        //--------------------------------------------------
 
         const footerHeight =
-
-            this.#footer
-
-                ?
-
-                this.#footer.getHeight()
-
-                :
-
-                0;
-
-
-
-
-        const footerBottom =
-
-            pageHeight
-
-            -
-
-            margin.bottom
-
-            -
-
-            spacing.footer.marginBottom;
-
-
-
-
+            this.#footer?.height ?? 0;
 
         const footerTop =
+            pageHeight
+            - margin.bottom
+            - spacing.footer.marginBottom
+            - footerHeight;
 
-            footerBottom
-
-            -
-
-            footerHeight
-
-            -
-
-            spacing.footer.marginTop;
-
-
-
-
-
-
-
-
-
-        //------------------------------------------
+        //--------------------------------------------------
         // Body
-        //------------------------------------------
-
+        //--------------------------------------------------
 
         const bodyTop =
-
-            headerBottom;
-
-
+            headerTop
+            + headerHeight
+            + spacing.header.marginBottom
+            + spacing.content.paddingTop;
 
         const bodyBottom =
-
-            footerTop;
-
-
-
+            footerTop
+            - spacing.footer.marginTop
+            - spacing.content.paddingBottom;
 
         const bodyHeight =
-
             Math.max(
-
                 0,
-
                 bodyBottom - bodyTop
-
             );
 
-
-
-
-
-
-
-
-        //------------------------------------------
-        // Table Area
-        //------------------------------------------
-
-
-        const content =
-
-            spacing.content;
-
-
+        //--------------------------------------------------
+        // Table
+        //--------------------------------------------------
 
         const tableLeft =
-
             margin.left
-
-            +
-
-            content.paddingLeft;
-
-
-
+            + spacing.content.paddingLeft;
 
         const tableWidth =
-
             printableWidth
+            - spacing.content.paddingLeft
+            - spacing.content.paddingRight;
 
-            -
-
-            content.paddingLeft
-
-            -
-
-            content.paddingRight;
-
-
-
-
-
-
-
+        //--------------------------------------------------
+        // Result
+        //--------------------------------------------------
 
         return {
 
-
+            //------------------------------------------
+            // Page
+            //------------------------------------------
 
             pageWidth,
-
             pageHeight,
 
-
+            //------------------------------------------
+            // Printable
+            //------------------------------------------
 
             printableWidth,
-
             printableHeight,
 
-
-
-            margin,
-
-
+            //------------------------------------------
+            // Header
+            //------------------------------------------
 
             headerTop,
-
             headerHeight,
 
-            headerBottom,
-
-
+            //------------------------------------------
+            // Footer
+            //------------------------------------------
 
             footerTop,
-
             footerHeight,
 
-            footerBottom,
-
-
+            //------------------------------------------
+            // Body
+            //------------------------------------------
 
             bodyTop,
-
             bodyBottom,
-
             bodyHeight,
 
-
+            //------------------------------------------
+            // Table
+            //------------------------------------------
 
             tableLeft,
-
-            tableWidth,
-
-
-
-            font:
-
-            this.#measure.font,
-
-
-            fontSize:
-
-            this.#measure.fontSize,
-
-
-            lineHeight:
-
-            this.#measure.lineHeight
-
+            tableWidth
 
         };
 
-
-
     }
-
 
 }

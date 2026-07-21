@@ -2,393 +2,177 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : BindingResolver.js
- * Version   : 5.0.0
+ * Version   : 6.0.0
  *
  * Description:
- *      Resolves report bindings.
+ *      Resolves Header / Footer bindings.
+ *
+ * Responsibilities:
+ *      ✔ No Mutation
+ *      ✔ Returns Runtime objects
+ *      ✔ Supports V6 Contract
  *
  * ------------------------------------------------------------
  */
 
-
 export class BindingResolver {
-
-
 
     //--------------------------------------------------
     // Header
     //--------------------------------------------------
 
-    static resolveHeader(
+    static resolveHeader(header, context = {}) {
 
-        header,
-
-        context={}
-
-    ){
-
-
-        if(!header){
-
+        if (!header) {
             return null;
-
         }
-
-
-
-        header.sections =
-
-            header.sections.map(
-
-                section =>
-
-                    this.resolveSection(
-
-                        section,
-
-                        context
-
-                    )
-
-            );
-
-
-
-        return header;
-
-
-    }
-
-
-
-
-
-
-
-
-    //--------------------------------------------------
-    // Section
-    //--------------------------------------------------
-
-    static resolveSection(
-
-        section,
-
-        context
-
-    ){
-
-
-
-        if(section.items){
-
-
-            section.items =
-
-                this.resolveItems(
-
-                    section.items,
-
-                    context
-
-                );
-
-
-        }
-
-
-
-
-
-
-        if(section.columns){
-
-
-
-            section.columns.right =
-
-                this.resolveItems(
-
-                    section.columns.right,
-
-                    context
-
-                );
-
-
-
-            section.columns.center =
-
-                this.resolveItems(
-
-                    section.columns.center,
-
-                    context
-
-                );
-
-
-
-            section.columns.left =
-
-                this.resolveItems(
-
-                    section.columns.left,
-
-                    context
-
-                );
-
-
-        }
-
-
-
-
-
-        return section;
-
-
-    }
-
-
-
-
-
-
-
-
-    //--------------------------------------------------
-    // Items
-    //--------------------------------------------------
-
-    static resolveItems(
-
-        items=[],
-
-        context={}
-
-    ){
-
-
-        return items.map(
-
-            item =>
-
-                this.resolveItem(
-
-                    item,
-
-                    context
-
-                )
-
-        );
-
-
-    }
-
-
-
-
-
-
-
-
-    //--------------------------------------------------
-    // Item
-    //--------------------------------------------------
-
-    static resolveItem(
-
-        item,
-
-        context
-
-    ){
-
-
-
-        if(!item.binding){
-
-
-            return item;
-
-
-        }
-
-
-
-
-
-        if(
-
-            item.binding.source !== "context"
-
-        ){
-
-
-            return item;
-
-
-        }
-
-
-
-
-        const value =
-
-            context[
-                item.binding.field
-                ];
-
-
-
-
 
         return {
+            repeat: header.repeat,
+            height: header.height,
+            margin: { ...header.margin },
+            padding: { ...header.padding },
 
+            sections: {
 
-            ...item,
+                top: this.resolveItems(
+                    header.sections?.top,
+                    context
+                ),
 
+                middle: {
 
-            value:
+                    right: this.resolveItems(
+                        header.sections?.middle?.right,
+                        context
+                    ),
 
-                value?.value
+                    center: this.resolveItems(
+                        header.sections?.middle?.center,
+                        context
+                    ),
 
-                ??
+                    left: this.resolveItems(
+                        header.sections?.middle?.left,
+                        context
+                    )
 
-                value
+                },
 
-                ??
+                bottom: this.resolveItems(
+                    header.sections?.bottom,
+                    context
+                )
 
-                "",
-
-
-
-            label:
-
-                value?.label
-
-                ??
-
-                ""
-
+            }
 
         };
 
-
     }
-
-
-
-
-
-
-
 
     //--------------------------------------------------
     // Footer
     //--------------------------------------------------
 
-    static resolveFooter(
+    static resolveFooter(footer, context = {}) {
 
-        footer,
-
-        context={}
-
-    ){
-
-
-        if(!footer){
-
+        if (!footer) {
             return null;
-
         }
 
+        return {
 
+            repeat: footer.repeat,
 
-        footer.rows =
+            lastPageOnly: footer.lastPageOnly,
 
-            this.resolveItems(
+            height: footer.height,
 
+            margin: { ...footer.margin },
+
+            padding: { ...footer.padding },
+
+            rows: this.resolveItems(
                 footer.rows,
-
                 context
+            )
 
-            );
-
-
-
-        return footer;
-
+        };
 
     }
 
+    //--------------------------------------------------
+    // Items
+    //--------------------------------------------------
 
+    static resolveItems(items = [], context = {}) {
 
+        return items.map(item =>
+            this.resolveItem(item, context)
+        );
 
+    }
 
+    //--------------------------------------------------
+    // Item
+    //--------------------------------------------------
 
+    static resolveItem(item, context = {}) {
 
+        if (!item) {
+            return null;
+        }
+
+        if (!item.binding) {
+            return { ...item };
+        }
+
+        if (item.binding.source !== "context") {
+            return { ...item };
+        }
+
+        const value = context[item.binding.field];
+
+        return {
+
+            ...item,
+
+            label:
+                value?.label ??
+                item.label ??
+                "",
+
+            value:
+                value?.value ??
+                value ??
+                ""
+
+        };
+
+    }
 
     //--------------------------------------------------
     // Generic
     //--------------------------------------------------
 
-    static resolve(
+    static resolve(binding, context = {}) {
 
-        binding,
-
-        context={}
-
-    ){
-
-
-        if(!binding){
-
+        if (!binding) {
             return "";
-
         }
 
-
-
-        if(binding.source==="context"){
-
-
-            const value =
-
-                context[
-                    binding.field
-                    ];
-
-
-
-            return (
-
-                value?.value
-
-                ??
-
-                value
-
-                ??
-
-                ""
-
-            );
-
-
+        if (binding.source !== "context") {
+            return "";
         }
 
+        const value = context[binding.field];
 
-
-
-        return "";
-
+        return (
+            value?.value ??
+            value ??
+            ""
+        );
 
     }
-
-
 
 }

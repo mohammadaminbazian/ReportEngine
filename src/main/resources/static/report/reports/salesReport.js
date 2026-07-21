@@ -39,9 +39,9 @@ new MeasureDefinition({
 
     font:"B Nazanin",//"IRANYekanXFaNum",//"B Nazanin", 
 
-    fontSize: 10,
+    fontSize: 12,
 
-    lineHeight: 4,
+    lineHeight: 3,
 
     pageSizeModel : page.size + " " +page.orientation,
 
@@ -320,7 +320,7 @@ const table = new TableDefinition({
 
             title:"مبلغ",
 
-            width:12,
+            width:10,
 
             type:"number",
 
@@ -368,7 +368,7 @@ const table = new TableDefinition({
 
             title:"شرح",
 
-            width:50,
+            width:40,
 
             type:"text",
 

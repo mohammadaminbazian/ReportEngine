@@ -2,84 +2,74 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : Page.js
- * Version   : 3.0.0
+ * Version   : 6.0.0
  *
- * Runtime page model.
+ * Description :
+ *      Runtime page model.
+ *
+ * Responsibilities:
+ *      ✔ Holds page rows
+ *      ✔ Tracks used height
+ *      ✔ Calculates remaining height
+ *
+ * No Rendering
+ * No Layout
+ * No Measurement
  *
  * ------------------------------------------------------------
  */
 
-
 export class Page {
 
-
+    //--------------------------------------------------
+    // Constructor
+    //--------------------------------------------------
 
     constructor({
 
                     number = 1,
 
-                    availableHeight = 0,
+                    availableHeight = 0
 
-                    tableHeader = true
+                } = {}) {
 
+        this.number = number;
 
-                } = {}){
-
-
-        this.number =
-            number;
-
-
-        this.rows = [];
-
+        this.availableHeight = availableHeight;
 
         this.usedHeight = 0;
 
+        this.rows = [];
 
-        this.availableHeight =
-            availableHeight;
+        this.tableHeader = false;
 
-
-        this.tableHeader =
-            tableHeader;
-
+        this.totalPages = 0;
 
     }
 
+    //--------------------------------------------------
+    // Add Row
+    //--------------------------------------------------
 
-
-
-
-
-
-    addRow(row,height){
-
-
+    addRow(row, height) {
 
         this.rows.push({
 
-            data:row,
+            data: row,
 
             height
 
         });
 
-
-
         this.usedHeight += height;
-
 
     }
 
+    //--------------------------------------------------
+    // Can Accept
+    //--------------------------------------------------
 
-
-
-
-
-
-
-    canAccept(height){
-
+    canAccept(height) {
 
         return (
 
@@ -89,34 +79,25 @@ export class Page {
 
             this.availableHeight
 
-
         );
 
+    }
+
+    //--------------------------------------------------
+    // Empty
+    //--------------------------------------------------
+
+    isEmpty() {
+
+        return this.rows.length === 0;
 
     }
 
+    //--------------------------------------------------
+    // Remaining Height
+    //--------------------------------------------------
 
-
-
-
-
-
-    isEmpty(){
-
-
-        return this.rows.length===0;
-
-
-    }
-
-
-
-
-
-
-
-    get remainingHeight(){
-
+    get remainingHeight() {
 
         return (
 
@@ -126,14 +107,8 @@ export class Page {
 
             this.usedHeight
 
-
         );
 
-
     }
-
-
-
-
 
 }

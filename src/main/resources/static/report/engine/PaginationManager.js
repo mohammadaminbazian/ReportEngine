@@ -28,13 +28,9 @@ import { Page } from "../model/Page.js";
 export class PaginationManager {
 
 
-
     constructor(measureManager){
 
-
-        this.measureManager =
-            measureManager;
-
+        this.measureManager =  measureManager;
 
     }
 
@@ -71,9 +67,7 @@ export class PaginationManager {
 
 
 
-        const layout =
-
-            runtimeReport.layout;
+        const layout = runtimeReport.layout;
 
 
 
@@ -109,23 +103,19 @@ export class PaginationManager {
 
         }
 
+        const availableHeight = layout.bodyHeight;
+
+       /* console.log("=== Layout ===", {
+            pageHeight: layout.pageHeight,
+            printableHeight: layout.printableHeight,
+            headerHeight: layout.headerHeight,
+            footerHeight: layout.footerHeight,
+            bodyHeight: layout.bodyHeight,
+            availableHeight
+        });*/
 
 
-
-
-
-        const availableHeight =
-
-            layout.bodyHeight;
-
-
-
-
-
-
-        const columns =
-
-            table.visibleColumns;
+        const columns =  table.visibleColumns;
 
 
 
@@ -135,54 +125,27 @@ export class PaginationManager {
 
         const pages = [];
 
-
-
-
-
-
-
-        let page =
-
-            this.createPage(
-
-                1,
-
-                availableHeight
-
-            );
-
-
-
-
-
+        let page =  this.createPage(  1,  availableHeight  );
 
 
         rows.forEach(row => {
 
+            const result =   this.measureManager.measureRow(  row,   columns  );
 
+            const rowHeight = result.height;
 
-            const result =
-
-                this.measureManager.measureRow(
-
-                    row,
-
-                    columns
-
-                );
-
-
-
-
-
-            const rowHeight =
-
-                result.height;
-
-
-
-
-
+           /* console.log("pAGINAtionManager >>",{
+                id: row.id,
+                height: rowHeight
+            });*/
+            /*console.table({
+                rowId: row.id,
+                rowHeight,
+                usedHeight: page.usedHeight,
+                remainingHeight: page.remainingHeight,
+                availableHeight: page.availableHeight,
+                canAccept: page.canAccept(rowHeight)
+            });*/
 
             //----------------------------------
             // New Page
@@ -198,7 +161,12 @@ export class PaginationManager {
 
             ){
 
-
+                /*console.warn("PaginationManager >> PAGE BREAK", {
+                    pageNumber: page.number,
+                    usedHeight: page.usedHeight,
+                    availableHeight: page.availableHeight,
+                    nextRowHeight: rowHeight
+                });*/
 
                 pages.push(page);
 
@@ -278,18 +246,8 @@ export class PaginationManager {
 
 
         return new Page({
-
-            number,
-
-
-            availableHeight:
-
-            height,
-
-
-            tableHeader:true
-
-
+            number, availableHeight: height
+            /*, tableHeader:true*/
         });
 
 

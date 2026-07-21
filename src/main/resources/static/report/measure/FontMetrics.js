@@ -41,28 +41,22 @@ export class FontMetrics {
     // Font Height
     //--------------------------------------------------
 
-    getFontHeight(){
+    /*getFontHeight(){
 
 
-        /*
+        /!*
          * 1pt = 0.3527 mm
          *
          * Approximate printable height
-         */
+         *!/
 
-        return (
+        return (            this.#fontSize            *            0.3527 );
+    }*/
+    getFontHeight(){
 
-            this.#fontSize
-
-            *
-
-            0.3527
-
-        );
-
+        return this.#lineHeight;
 
     }
-
 
 
     //--------------------------------------------------

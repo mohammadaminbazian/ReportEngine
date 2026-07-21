@@ -7,64 +7,57 @@
  * Description :
  *      Main report orchestrator.
  *
- * Flow:
+ * Pipeline
  *
  *      ReportDefinition
- *              |
+ *              │
  *      BindingResolver
- *              |
+ *              │
  *      MeasureManager
- *              |
+ *              │
  *      LayoutManager
- *              |
+ *              │
  *      RuntimeReport
- *              |
+ *              │
  *      PaginationManager
- *              |
+ *              │
  *      HtmlRenderer
  *
  * ------------------------------------------------------------
  */
 
+import { HtmlRenderer } from "./HtmlRenderer.js";
+import { LayoutManager } from "./LayoutManager.js";
+import { PaginationManager } from "./PaginationManager.js";
 
-import { HtmlRenderer }
-    from "./HtmlRenderer.js";
+import { RuntimeReport } from "../model/RuntimeReport.js";
 
-import { LayoutManager }
-    from "./LayoutManager.js";
+import { MeasureManager } from "../measure/MeasureManager.js";
 
-import { PaginationManager }
-    from "./PaginationManager.js";
-
-import { RuntimeReport }
-    from "../model/RuntimeReport.js";
-
-import { MeasureManager }
-    from "../measure/MeasureManager.js";
-
-import { BindingResolver }
-    from "../resolver/BindingResolver.js";
-
-
+import { BindingResolver } from "../resolver/BindingResolver.js";
 
 export class ReportEngine {
 
+    //--------------------------------------------------
+    // Private Fields
+    //--------------------------------------------------
 
     #renderer;
 
+    //--------------------------------------------------
+    // Constructor
+    //--------------------------------------------------
 
-
-    constructor(){
-
+    constructor() {
 
         this.#renderer =
             new HtmlRenderer();
 
-
     }
 
-
-
+    //--------------------------------------------------
+    // Generate
+    //--------------------------------------------------
 
     generate(
 
@@ -72,72 +65,54 @@ export class ReportEngine {
 
         data = {}
 
-    ){
+    ) {
 
-
-
-        if(!reportDefinition){
-
+        if (!reportDefinition) {
 
             throw new Error(
-
                 "ReportDefinition is required."
-
             );
 
         }
 
-
-
-
+        //--------------------------------------------------
+        // Runtime Context
+        //--------------------------------------------------
 
         const context =
             data.context ?? {};
 
+        const rows =
+            data.rows ?? [];
 
-
-
-
+        //--------------------------------------------------
+        // Resolve Header / Footer
+        //--------------------------------------------------
 
         const header =
             BindingResolver.resolveHeader(
-
                 reportDefinition.header,
-
                 context
-
             );
-
-
-
-
 
         const footer =
             BindingResolver.resolveFooter(
-
                 reportDefinition.footer,
-
                 context
-
             );
 
-
-
-
-
+        //--------------------------------------------------
+        // Measure
+        //--------------------------------------------------
 
         const measureManager =
             new MeasureManager(
-
                 reportDefinition.measure
-
             );
 
-
-
-
-
-
+        //--------------------------------------------------
+        // Layout
+        //--------------------------------------------------
 
         const layoutManager =
             new LayoutManager({
@@ -145,161 +120,114 @@ export class ReportEngine {
                 pageDefinition:
                 reportDefinition.page,
 
-
                 measureDefinition:
                 reportDefinition.measure,
 
+                header,
 
-                header:
-                reportDefinition.header,
-
-
-                footer:
-                reportDefinition.footer
+                footer
 
             });
-
-
-
-
-
 
         const layout =
             layoutManager.calculate();
 
-
-
-
-
-
+        //--------------------------------------------------
+        // Runtime Report
+        //--------------------------------------------------
 
         const runtimeReport =
-            new RuntimeReport(
+            new RuntimeReport({
 
+                definition:
                 reportDefinition,
 
-                layout
+                layout,
 
-            );
+                header,
 
+                footer,
 
+                table:
+                reportDefinition.table,
 
+                measure:
+                measureManager,
 
+                context
 
+            });
 
-
-        if(!runtimeReport.table){
-
+        if (!runtimeReport.table) {
 
             throw new Error(
-
                 "ReportDefinition.table is missing."
-
             );
 
         }
 
-
-
-
-
-
+        //--------------------------------------------------
+        // Pagination
+        //--------------------------------------------------
 
         const paginationManager =
             new PaginationManager(
-
                 measureManager
-
             );
-
-
-
-
-
 
         const pages =
             paginationManager.paginate(
 
                 runtimeReport,
 
-                data.rows ?? []
+                rows
 
             );
 
+        //--------------------------------------------------
+        // Finalize Pages
+        //--------------------------------------------------
 
+        pages.forEach((page, index) => {
 
+            page.totalPages =
+                pages.length;
 
+            page.tableHeader =
 
+                runtimeReport.table?.showHeader
 
+                &&
 
+                (
 
-        pages.forEach(
+                    index === 0
 
-            (page,index)=>{
+                    ||
 
+                    runtimeReport.header?.repeat
 
-                page.totalPages =
-                    pages.length;
+                );
 
+        });
 
-
-
-                page.tableHeader =
-
-                    runtimeReport.table.showHeader
-
-                    &&
-
-                    (
-
-                        index === 0
-
-                        ||
-
-                        runtimeReport.page.print.repeatHeader
-
-                    );
-
-
-            }
-
-        );
-
-
-
-
-
-
+        //--------------------------------------------------
+        // Render
+        //--------------------------------------------------
 
         return this.#renderer.render(
 
             runtimeReport,
 
-            pages,
-
-            {
-
-                ...context,
-
-                header,
-
-                footer,
-
-                layout
-
-            }
+            pages
 
         );
 
-
-
     }
 
-
-
-
-
-
+    //--------------------------------------------------
+    // Render To Container
+    //--------------------------------------------------
 
     renderTo(
 
@@ -309,23 +237,14 @@ export class ReportEngine {
 
         data = {}
 
-    ){
-
-
+    ) {
 
         const container =
             document.getElementById(
-
                 containerId
-
             );
 
-
-
-
-
-        if(!container){
-
+        if (!container) {
 
             throw new Error(
 
@@ -335,12 +254,7 @@ export class ReportEngine {
 
         }
 
-
-
-
-
         container.innerHTML =
-
             this.generate(
 
                 reportDefinition,
@@ -349,8 +263,6 @@ export class ReportEngine {
 
             );
 
-
     }
-
 
 }

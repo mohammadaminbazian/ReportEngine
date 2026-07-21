@@ -2,343 +2,106 @@
  * ------------------------------------------------------------
  * Report Engine
  * File      : HeaderDefinition.js
- * Version   : 5.0.0
+ * Version   : 6.0.0
  *
  * Description:
- *      Defines report header layout.
+ *      Defines report header structure.
  *
- *      Supports:
- *      - top row
- *      - three column middle row
- *      - bottom row
- *      - padding
- *      - margin
+ * Responsibilities:
+ *      ✔ Stores header definition only
+ *      ✔ No layout calculation
+ *      ✔ No binding resolution
+ *      ✔ No rendering
+ *
+ * Contract:
+ *
+ * {
+ *     repeat,
+ *     height,
+ *     margin,
+ *     padding,
+ *     sections:{
+ *         top:[],
+ *         middle:{
+ *             right:[],
+ *             center:[],
+ *             left:[]
+ *         },
+ *         bottom:[]
+ *     }
+ * }
  *
  * ------------------------------------------------------------
  */
 
-
 import { BaseDefinition } from "./BaseDefinition.js";
-
 
 export class HeaderDefinition extends BaseDefinition {
 
+    #repeat;
+    #height;
+    #margin;
+    #padding;
+    #sections;
 
+    constructor(config = {}) {
+        super(config);
 
-    constructor({
+        this.#repeat = config.repeat ?? true;
+        this.#height = config.height ?? 0;
 
-                    height = null,
-
-                    repeat = true,
-
-                    margin = {},
-
-                    padding = {},
-
-                    sections = {},
-
-                    metadata = {}
-
-                } = {}){
-
-
-        super(metadata);
-
-
-
-        this.repeat =
-            repeat;
-
-
-
-        this.margin = {
-
-
-            top:
-                margin.top ?? 0,
-
-
-            bottom:
-                margin.bottom ?? 0
-
-
+        this.#margin = {
+            top: config.margin?.top ?? 0,
+            right: config.margin?.right ?? 0,
+            bottom: config.margin?.bottom ?? 0,
+            left: config.margin?.left ?? 0
         };
 
-
-
-        this.padding = {
-
-
-            top:
-                padding.top ?? 0,
-
-
-            right:
-                padding.right ?? 0,
-
-
-            bottom:
-                padding.bottom ?? 0,
-
-
-            left:
-                padding.left ?? 0
-
-
+        this.#padding = {
+            top: config.padding?.top ?? 0,
+            right: config.padding?.right ?? 0,
+            bottom: config.padding?.bottom ?? 0,
+            left: config.padding?.left ?? 0
         };
 
-
-
-
-        this.sections =
-
-            this.createSections(
-                sections
-            );
-
-
-
-
-        this.height =
-
-            height;
-
-
-
-    }
-
-
-
-
-
-
-
-    //--------------------------------------------------
-    // Create Structure
-    //--------------------------------------------------
-
-    createSections(sections){
-
-
-
-        return [
-
-
-            {
-
-                name:"top",
-
-                layout:"full",
-
-                height:8,
-
-
-                items:
-                    sections.top ?? []
-
+        this.#sections = {
+            top: config.sections?.top ?? [],
+            middle: {
+                right: config.sections?.middle?.right ?? [],
+                center: config.sections?.middle?.center ?? [],
+                left: config.sections?.middle?.left ?? []
             },
-
-
-
-            {
-
-                name:"middle",
-
-                layout:"three-column",
-
-                height:24,
-
-
-                columns:{
-
-
-                    right:
-                        sections.middle?.right ?? [],
-
-
-                    center:
-                        sections.middle?.center ?? [],
-
-
-                    left:
-                        sections.middle?.left ?? []
-
-
-                }
-
-
-            },
-
-
-
-            {
-
-                name:"bottom",
-
-                layout:"full",
-
-                height:8,
-
-
-                items:
-                    sections.bottom ?? []
-
-
-            }
-
-
-        ];
-
-
+            bottom: config.sections?.bottom ?? []
+        };
     }
 
-
-
-
-
-
-
-    //--------------------------------------------------
-    // Height Calculation
-    //--------------------------------------------------
-
-    getHeight(){
-
-
-
-        if(this.height !== null){
-
-
-            return this.height;
-
-
-        }
-
-
-
-
-        const sectionHeight =
-
-
-            this.sections.reduce(
-
-                (sum,section)=>
-
-
-                    sum +
-
-                    (section.height ?? 0),
-
-
-                0
-
-
-            );
-
-
-
-
-
-        return (
-
-            sectionHeight
-
-            +
-
-            this.padding.top
-
-            +
-
-            this.padding.bottom
-
-
-        );
-
-
+    get repeat() {
+        return this.#repeat;
     }
 
-
-
-
-
-
-
-    //--------------------------------------------------
-    // Section
-    //--------------------------------------------------
-
-    getSection(name){
-
-
-        return this.sections.find(
-
-            section =>
-
-                section.name === name
-
-        );
-
-
+    get height() {
+        return this.#height;
     }
 
-
-
-
-
-
-
-    addSection(section){
-
-
-        this.sections.push(section);
-
-
-        return this;
-
-
+    get margin() {
+        return this.#margin;
     }
 
-
-
-
-
-
-
-    hasSections(){
-
-
-        return this.sections.length > 0;
-
-
+    get padding() {
+        return this.#padding;
     }
 
+    get sections() {
+        return this.#sections;
+    }
 
-
-
-
-
-
-    //--------------------------------------------------
-    // Validation
-    //--------------------------------------------------
-
-    validate(){
-
-
+    toJSON() {
         return {
-
-
-            valid:true,
-
-
-            errors:[]
-
-
+            repeat: this.#repeat,
+            height: this.#height,
+            margin: this.#margin,
+            padding: this.#padding,
+            sections: this.#sections
         };
-
-
     }
-
-
-
 }
