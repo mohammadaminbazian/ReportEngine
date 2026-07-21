@@ -39,8 +39,8 @@ export class TextMeasurer {
     #lineHeight;
     #measureElement;
 
-    static PX_PER_MM = 96 / 25.4;
-
+     static PX_PER_MM = 12;//96 / 25.4;
+    #PxPerMM =0;
     //--------------------------------------------------
     // Constructor
     //--------------------------------------------------
@@ -65,6 +65,18 @@ export class TextMeasurer {
 
         this.#applyFont();
         this.#measureElement = this.#createMeasureElement();
+        let count = (fontSize - TextMeasurer.PX_PER_MM)  / 2;
+
+        this.#PxPerMM = TextMeasurer.PX_PER_MM;
+        if(fontSize > TextMeasurer.PX_PER_MM){
+            for (let i = 0; i <count ;i++){
+                this.#PxPerMM = this.#PxPerMM - 1;
+            }
+        }else if(fontSize < TextMeasurer.PX_PER_MM){
+            for (let i = 0; i <count ;i++){
+                this.#PxPerMM = this.#PxPerMM + 1;
+            }
+        }
 
     }
 
@@ -325,8 +337,14 @@ export class TextMeasurer {
     //--------------------------------------------------
 
     #pxToMm(px){
-
-        return px / TextMeasurer.PX_PER_MM;
+console.log("px:",px," ,TextMeasurer.PX_PER_MM",TextMeasurer.PX_PER_MM, "  , mm",px / TextMeasurer.PX_PER_MM)
+        let mm =  px /  this.#PxPerMM ;
+        if (mm <=0){
+            return 1;
+        } else {
+            return mm;
+        }
+        //return px / TextMeasurer.PX_PER_MM;
 
     }
 

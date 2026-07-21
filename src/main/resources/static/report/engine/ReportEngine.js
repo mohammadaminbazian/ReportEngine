@@ -151,7 +151,7 @@ export class ReportEngine {
                 table:
                 reportDefinition.table,
 
-                measure:
+                measure: reportDefinition.measure,
                 measureManager,
 
                 context
@@ -175,13 +175,13 @@ export class ReportEngine {
                 measureManager
             );
 
+        /*const pages =
+            paginationManager.paginate(                runtimeReport,                rows            );*/
         const pages =
             paginationManager.paginate(
-
                 runtimeReport,
-
-                rows
-
+                rows,
+                reportDefinition.measure.row.headerHeight
             );
 
         //--------------------------------------------------

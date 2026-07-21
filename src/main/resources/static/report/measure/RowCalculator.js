@@ -18,9 +18,7 @@
  *
  * ------------------------------------------------------------
  */
-
-import { RowMeasureResult }
-    from "../model/RowMeasureResult.js";
+import { RowMeasureResult } from "../model/RowMeasureResult.js";
 
 export class RowCalculator {
 
@@ -107,6 +105,7 @@ export class RowCalculator {
 
         height = Math.ceil(height);
 
+        height = this.#applyLimits(height);
         //--------------------------------------------------
         // Result
         //--------------------------------------------------

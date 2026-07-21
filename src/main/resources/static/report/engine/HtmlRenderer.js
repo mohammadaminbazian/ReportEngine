@@ -32,7 +32,7 @@ export class HtmlRenderer {
     //--------------------------------------------------
 
     render(runtimeReport, pages){
-
+        console.log("",runtimeReport.measure);
         return pages
             .map(page =>
 
@@ -383,47 +383,15 @@ width:${runtimeReport.layout.tableWidth}mm;
 
 ">
 
-<table
+<table class="report-table"
+style="width:100%;table-layout:fixed;border-collapse:collapse;">
 
-class="report-table"
-
-style="
-
-width:100%;
-
-table-layout:fixed;
-
-border-collapse:collapse;
-
-">
-
-${
-
-            table.showHeader
-
-            &&
-
-            page.tableHeader
-
-                ?
-
-                this.renderTableHeader(
-
-                    table
-
-                )
-
-                :
-
-                ""
-
-        }
+${   table.showHeader   &&    page.tableHeader
+   ?   this.renderTableHeader( table   )  : ""  }
 
 <tbody>
 
-${page.rows
-
-            .map(row=>
+${page.rows.map(row=>
 
                 this.renderRow(
 
@@ -469,15 +437,7 @@ ${table.visibleColumns
 
             .map(column=>`
 
-<th
-
-style="
-
-width:${column.width}mm;
-
-text-align:${column.thAlign ?? "center"};
-
-">
+<th style="width:${column.width}mm; text-align:${column.thAlign ?? "center"};">
 
 ${column.title}
 
@@ -519,17 +479,7 @@ ${table.visibleColumns
 
             .map(column=>`
 
-<td
-
-style="
-
-text-align:${column.tdAlign ?? "right"};
-
-width:${column.width}mm;
-
-height:${rowInfo.height}mm;
-
-">
+<td style="text-align:${column.tdAlign ?? "right"};width:${column.width}mm;height:${rowInfo.height}mm;">
 
 ${this.resolveValue(
 
@@ -644,17 +594,11 @@ ${element.value ?? ""}
 
         return `
 
-<img
-class="report-image"
-src="${element.src}"
-
-style="
+<img class="report-image" src="${element.src}" style="
 width:${element.width ?? 15}mm;
 height:${element.height ?? 15}mm;
 object-fit:${element.fit ?? "contain"};
-"/>
-
-`;
+"/>`;
 
     }
 

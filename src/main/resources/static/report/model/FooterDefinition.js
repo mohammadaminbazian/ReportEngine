@@ -43,10 +43,10 @@ export class FooterDefinition extends BaseDefinition {
 
         this.#repeat = config.repeat ?? true;
         this.#lastPageOnly = config.lastPageOnly ?? false;
-        this.#height = config.height ?? 0;
+        this.#height = config.height ?? 15;
 
         this.#margin = {
-            top: config.margin?.top ?? 0,
+            top: config.margin?.top ?? 1,
             right: config.margin?.right ?? 0,
             bottom: config.margin?.bottom ?? 0,
             left: config.margin?.left ?? 0

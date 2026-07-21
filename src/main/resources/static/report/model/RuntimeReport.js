@@ -44,7 +44,7 @@ export class RuntimeReport {
     #footer;
 
     #table;
-
+    #measureManager;
     #measure;
 
     #context;
@@ -64,7 +64,7 @@ export class RuntimeReport {
                     footer = null,
 
                     table = null,
-
+                    measureManager = null,
                     measure = null,
 
                     context = {}
@@ -80,7 +80,7 @@ export class RuntimeReport {
         this.#footer = footer;
 
         this.#table = table;
-
+        this.#measureManager = measureManager ,
         this.#measure = measure;
 
         this.#context = context;
@@ -110,7 +110,9 @@ export class RuntimeReport {
     get table() {
         return this.#table;
     }
-
+    get measureManager(){
+        return this.#measureManager;
+    }
     get measure() {
         return this.#measure;
     }

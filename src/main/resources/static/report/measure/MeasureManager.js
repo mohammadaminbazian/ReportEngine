@@ -96,8 +96,6 @@ export class MeasureManager {
     }
 
 
-
-
     measureRow(row,columns){
 
 

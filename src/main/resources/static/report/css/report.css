@@ -24,47 +24,16 @@ html, body{
 
 }
 
-
-
-/*.report-page {
-
-
-    width: 277mm;
-
-    min-height: 190mm;
-
-
-    margin: auto;
-
-
-    padding: 1mm 10mm;
-
-    box-sizing: border-box;
-
-
-    page-break-after: always;
-
-    font-family:var(--report-font);
-
-    font-size:var(--report-font-size);
-
-    line-height:var(--report-line-height);
-
-
-
-
-}*/
-
 .report-page {
 
 /* margin: auto;  جدول وسط قرار می گیرد */
 margin: auto;
 
-font-family:var(--report-font);
-
+/*font-family:var(--report-font);*/
+/*
 font-size:var(--report-font-size);
 
-line-height:var(--report-line-height);
+line-height:var(--report-line-height);*/
 
     position:relative;
 
@@ -77,38 +46,6 @@ line-height:var(--report-line-height);
     background:white;
 
 }
-
-/* 
-.report-header {
-
-    display: flex;
-    justify-content: space-between;
-    width:100%;
-    margin-bottom:1mm;
-
-} */
-
-.report-header{
-
-    width:100%;
-
-    display:flex;
-
-    flex-direction:column;
-
-    margin-bottom:1mm;
-
-}
-
-.header-column {
-
-
-    width:33.33%;
-
-
-}
-
-
 
 .header-column:nth-child(2){
 
@@ -126,32 +63,6 @@ line-height:var(--report-line-height);
 
 } 
 
-
-
-.header-item {
-
-
-    margin-bottom:1mm;
-
-
-}
-
-
-
-.header-item img {
-
-
-    /*max-width:30mm;
-
-    max-height:20mm;*/
-
-     display:block;
-
-}
-
-
-
-
 .report-table {
 
     width:100%;
@@ -159,7 +70,6 @@ line-height:var(--report-line-height);
     border-collapse:collapse;
 
     table-layout:fixed;
-    padding-left: 10mm;
 
 }
 
@@ -169,7 +79,8 @@ line-height:var(--report-line-height);
     border:0.7mm solid #000;
 
     background-color: gainsboro;
-    padding:1mm;
+    /*padding-top:0.3mm;
+    padding-bottom:0.5mm;*/
 
 
     vertical-align:top;
@@ -211,29 +122,9 @@ line-height:var(--report-line-height);
 
 
 .report-footer {
-
-
-    margin-top:5mm;
-
-
     display:flex;
-
-
     justify-content:space-around;
-
-
 }
-/*.report-header{
-
-    width:100%;
-
-    display:flex;
-
-    flex-direction:column;
-
-}*/
-
-
 
 /* هر Section */
 
@@ -247,21 +138,57 @@ line-height:var(--report-line-height);
 
 }
 
+.report-header{
 
+    position:absolute;
 
-/*
- Top / Bottom
-*/
+    display:flex;
 
-/*.header-full{
+    flex-direction:column;
 
-    justify-content:center;
+    width:100%;
+
+    box-sizing:border-box;
+
+}
+
+.header-middle{
+
+    display:flex;
+
+    flex-direction:row;
+
+    width:100%;
 
     align-items:center;
 
+}
+
+.header-right{
+
+    flex:1;
+
+    text-align:right;
+
+}
+
+.header-center{
+
+    flex:1;
+
     text-align:center;
 
-}*/
+}
+
+.header-left{
+
+    flex:1;
+
+    text-align:left;
+
+}
+
+
 .header-full{
 
     display:flex;
@@ -282,19 +209,7 @@ line-height:var(--report-line-height);
 
 }
 
-/*
- Main
-*/
 
-.header-three-column{
-
-
-    display:flex;
-
-    flex-direction:row;
-
-
-}
 
 
 
@@ -302,80 +217,12 @@ line-height:var(--report-line-height);
  Columns
 */
 
-
-.header-column{
-
-
-    flex:1;
-
-
-    display:flex;
-
-    flex-direction:column;
-
-
-    justify-content:center;
-
-
-}
-
-
-/*
- Right
-*/
-
-.header-right{
-
-    text-align:right;
-
-    align-items:flex-start;
-
-}
-
-
-/*
- Center
-*/
-
-.header-center{
-
-
-    text-align:center;
-
-    align-items:center;
-
-
-}
-
-
-/*
- Left
-*/
-
-.header-left{
-
-    text-align:left;
-    align-items:flex-start;
-
-}
-
-
-
-
 .header-text{
-
-
     margin:2px;
-
-
 }
-
 
 .header-center img{
-
-
     object-fit:contain;
-
 }
 
 
@@ -385,7 +232,7 @@ line-height:var(--report-line-height);
 @page {
 
     /* size: A4 landscape; */
-    size: var(--page-size-model);;
+    size: var(--page-size-model);
     margin: 0;
 
 }
@@ -394,9 +241,9 @@ line-height:var(--report-line-height);
 
     html,
     body {
-        background:white;
+     /*   background:white;*/
         padding-left: -20mm;
-        padding-right: 2mm;
+        /*padding-right: 2mm;*/
     }
 
     .toolbar {
@@ -413,6 +260,14 @@ line-height:var(--report-line-height);
 
         box-shadow:none;
 
+
+    }
+
+    .report-table-container{
+
+        position:absolute;
+
+        box-sizing:border-box;
 
     }
 

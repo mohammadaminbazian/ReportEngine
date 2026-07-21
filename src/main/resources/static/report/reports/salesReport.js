@@ -1,10 +1,10 @@
 ﻿/*!
  * ------------------------------------------------------------
  * Report Engine
- * File      : invoiceReport.js
+ * File      : salesReport.js
  * Version   : 2.0.0
  * Description :
- *      Invoice report definition.
+ *      Sales report definition.
  *
  * ------------------------------------------------------------
  */
@@ -39,7 +39,7 @@ new MeasureDefinition({
 
     font:"B Nazanin",//"IRANYekanXFaNum",//"B Nazanin", 
 
-    fontSize: 12,
+    fontSize: 10,
 
     lineHeight: 3,
 
@@ -60,7 +60,7 @@ new MeasureDefinition({
 const header = new HeaderDefinition({
 
     repeat: true,
-    height:35,
+    height:25,
     margin:{
         top:1,
         bottom:1
@@ -108,7 +108,7 @@ const header = new HeaderDefinition({
 
                 },
 
-                align: "center"
+                align: "right"
 
             },
 
@@ -124,7 +124,8 @@ const header = new HeaderDefinition({
 
                 },
 
-                align: "center"
+                align: "right",
+
 
             },
 
@@ -140,7 +141,7 @@ const header = new HeaderDefinition({
 
                 },
 
-                align: "left"
+                align: "right"
 
             }
 
@@ -186,7 +187,7 @@ const header = new HeaderDefinition({
 
                 },
 
-                align: "right"
+                align: "left"
 
             },
 
@@ -194,7 +195,7 @@ const header = new HeaderDefinition({
 
                 type: "pageNumber",
                 
-                align: "right"
+                align: "left"
 
             }
 
@@ -229,8 +230,8 @@ const header = new HeaderDefinition({
 const footer = new FooterDefinition({
 
     repeat: true,/*true,false,*/
-    lastPageOnly: true,
-
+    lastPageOnly: false,
+    height:15,
     rows: [
         {
             type: "signature",
