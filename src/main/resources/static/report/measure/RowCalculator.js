@@ -100,6 +100,13 @@ export class RowCalculator {
 
         let height =  maxLines * this.#definition.lineHeight;
         height += this.#definition.padding.top + this.#definition.padding.bottom;
+        const rowPaddingTop =
+            this.#definition.table?.row?.padding?.top ?? 0.3;
+
+        const rowPaddingBottom =
+            this.#definition.table?.row?.padding?.bottom ?? 0.3;
+
+        height += rowPaddingTop + rowPaddingBottom;
 
         height = Math.max(  height,   this.#definition.row.baseHeight  );
 

@@ -26,19 +26,21 @@ export class TableDefinition extends BaseDefinition {
     #columns;
 
     #header;
-
+    #row;
     #showHeader;
 
     #style;
 
     #options;
 
+
+
     constructor({
 
                     columns = [],
 
                     header = {},
-
+                    row ={},
                     showHeader = true,
 
                     style = {},
@@ -56,13 +58,20 @@ export class TableDefinition extends BaseDefinition {
 
 
 
-        this.#columns =
-            columns;
+        this.#columns = columns;
 
+        this.#header = header;
+        this.#row = {
 
-        this.#header =
-            header;
+            padding:{
 
+                top: row.padding.top ,
+
+                bottom: row.padding.bottom
+
+            }
+
+        };
 
         this.#showHeader =
             showHeader;
@@ -86,8 +95,14 @@ export class TableDefinition extends BaseDefinition {
         return this.#header?.height ?? 0;
 
     }
+    //--------------------------------------------------
+    // row
+    //--------------------------------------------------
+    get row(){
 
+        return this.#row;
 
+    }
     //--------------------------------------------------
     // Columns
     //--------------------------------------------------
@@ -297,17 +312,12 @@ export class TableDefinition extends BaseDefinition {
 
         return {
 
+            columns: this.#columns,
 
-            columns:
-            this.#columns,
+            header: this.#header,
+            row: this.#row,
 
-
-            header:
-            this.#header,
-
-
-            showHeader:
-            this.#showHeader,
+            showHeader: this.#showHeader,
 
 
             style:

@@ -479,7 +479,8 @@ ${table.visibleColumns
 
             .map(column=>`
 
-<td style="text-align:${column.tdAlign ?? "right"};width:${column.width}mm;height:${rowInfo.height}mm;">
+<td style="text-align:${column.tdAlign ?? "right"};width:${column.width}mm;height:${rowInfo.height}mm;
+padding-top:${table.row.padding.top}mm;padding-bottom:${table.row.padding.bottom}mm;">
 
 ${this.resolveValue(
 

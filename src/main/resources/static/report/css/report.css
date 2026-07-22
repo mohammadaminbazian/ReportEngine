@@ -74,49 +74,25 @@ line-height:var(--report-line-height);*/
 }
 
 .report-table th {
-
-
     border:0.7mm solid #000;
-
     background-color: gainsboro;
-    /*padding-top:0.3mm;
-    padding-bottom:0.5mm;*/
-
-
     vertical-align:top;
-
     /*text-align : left;*/
     word-break:break-word;
-
-
 }
 
 .report-table td {
-
-
     border:0.2mm solid #000;
-
-
-    padding:1mm;
-
-
     vertical-align:top;
-
 /* text-align: center; */
     word-break:break-word;
-
-
 }
 
 
 
 
 .report-table tr {
-
-
     page-break-inside:avoid;
-
-
 }
 
 
@@ -129,84 +105,49 @@ line-height:var(--report-line-height);*/
 /* هر Section */
 
 .header-section{
-
    width:100%;
-
-    /*display:flex;
-
-    box-sizing:border-box;*/
-
 }
 
 .report-header{
-
     position:absolute;
-
     display:flex;
-
     flex-direction:column;
-
     width:100%;
-
     box-sizing:border-box;
-
 }
 
 .header-middle{
-
     display:flex;
-
     flex-direction:row;
-
     width:100%;
-
     align-items:center;
-
 }
 
 .header-right{
-
     flex:1;
-
     text-align:right;
-
 }
 
 .header-center{
-
     flex:1;
-
     text-align:center;
-
 }
 
 .header-left{
-
     flex:1;
-
     text-align:left;
-
 }
 
-
 .header-full{
-
     display:flex;
-
     width:100%;
-
     justify-content:center;
-
     align-items:center;
-
 }
 
 .header-full > *{
-
     width:100%;
-
     text-align:center;
-
 }
 
 
@@ -230,20 +171,15 @@ line-height:var(--report-line-height);*/
  Print
 ------------------------------------------------------------*/
 @page {
-
     /* size: A4 landscape; */
     size: var(--page-size-model);
     margin: 0;
-
 }
 
 @media print {
 
-    html,
-    body {
-     /*   background:white;*/
+    html,body {
         padding-left: -20mm;
-        /*padding-right: 2mm;*/
     }
 
     .toolbar {
@@ -251,38 +187,19 @@ line-height:var(--report-line-height);*/
     }
 
     .re-page {
-
         margin:0;
-
-
         border:none;
-
-
         box-shadow:none;
-
-
     }
 
     .report-table-container{
-
         position:absolute;
-
         box-sizing:border-box;
-
     }
-
-
 
     .re-table tr {
-
-
         break-inside:avoid;
-
-
         page-break-inside:avoid;
-
-
     }
- 
 
     }
