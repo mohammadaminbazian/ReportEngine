@@ -173,29 +173,24 @@ const header = new HeaderDefinition({
         ],
 
         left: [
-
             {
-
                 type: "text",
-
                 binding: {
-
                     source: "context",
-
                     field: "reportDate",
                     showLabel:true
-
                 },
-
-                align: "left"
-
+                padding:{
+                    right: 60
+                },
+                align: "right"
             },
 
             {
 
                 type: "pageNumber",
-                
-                align: "left"
+                padding:{  right: 60},
+                align: "right"
 
             }
 

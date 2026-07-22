@@ -526,7 +526,7 @@ ${this.resolveValue(
                 return this.renderImage(element);
 
             case "pageNumber":
-                return this.renderPageNumber(context);
+                return this.renderPageNumber(element,context);
 
             case "signature":
                 return this.renderSignature(element, context);
@@ -608,19 +608,18 @@ object-fit:${element.fit ?? "contain"};
     // Page Number
     //--------------------------------------------------
 
-    renderPageNumber(context){
-
+    renderPageNumber(element, context){
+console.log("HtmlRenderer >> context : ",context, " , >>?:"+context.paddingRight)
         return `
-
-<div class="report-page-number">
-
-صفحه ${context.pageNumber}
-
-از ${context.totalPages}
-
-</div>
-
-`;
+            <div class="report-page-number" style="text-align:${element.align ?? "right"};padding-right:${element.padding?.right ?? 0}mm;" >
+            
+            صفحه ${context.pageNumber}
+            
+            از ${context.totalPages}
+            
+            </div>
+            
+        `;
 
     }
 
