@@ -44,14 +44,26 @@ export class PaginationManager {
         if(!table){
             throw new Error( "RuntimeReport.table is missing.");
         }
-        const availableHeight = layout.bodyHeight;
+        // const availableHeight = layout.bodyHeight;
+        let availableHeight = layout.bodyHeight;
 
+        if(table.showHeader){
+            availableHeight -= table.headerHeight;
+        }
+
+
+        /*if(runtimeReport.footer){
+            availableHeight -= runtimeReport.footer.reserveHeight;
+        }*/
+        if(runtimeReport.footer){
+            availableHeight -= runtimeReport.footer.reserveHeight;
+        }
         const columns =  table.visibleColumns;
         const pages = [];
         let page =  this.createPage(  1,  availableHeight  );
-        if (runtimeReport.table.showHeader) {
+        /*if (runtimeReport.table.showHeader) {
             page.usedHeight += tableHeaderHeight;
-        }
+        }*/
         rows.forEach(row => {
             const result =   this.measureManager.measureRow(  row,   columns  );
             const rowHeight = result.height;
@@ -78,9 +90,9 @@ export class PaginationManager {
                         pages.length + 1,
                         availableHeight
                     );
-                if (runtimeReport.table.showHeader) {
+                /*if (runtimeReport.table.showHeader) {
                     page.usedHeight += tableHeaderHeight;
-                }
+                }*/
             }
             page.addRow(    row,   rowHeight   );
         });

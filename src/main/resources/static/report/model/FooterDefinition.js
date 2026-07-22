@@ -34,9 +34,11 @@ export class FooterDefinition extends BaseDefinition {
     #repeat;
     #lastPageOnly;
     #height;
+    #reserveHeight;
     #margin;
     #padding;
     #rows;
+
 
     constructor(config = {}) {
         super(config);
@@ -44,6 +46,7 @@ export class FooterDefinition extends BaseDefinition {
         this.#repeat = config.repeat ?? true;
         this.#lastPageOnly = config.lastPageOnly ?? false;
         this.#height = config.height ?? 15;
+        this.#reserveHeight =   config.reserveHeight   ?? this.#height;
 
         this.#margin = {
             top: config.margin?.top ?? 1,
@@ -58,6 +61,7 @@ export class FooterDefinition extends BaseDefinition {
             bottom: config.padding?.bottom ?? 0,
             left: config.padding?.left ?? 0
         };
+
 
         this.#rows = config.rows ?? [];
     }
@@ -85,12 +89,17 @@ export class FooterDefinition extends BaseDefinition {
     get rows() {
         return this.#rows;
     }
+    get reserveHeight(){
 
+        return this.#reserveHeight;
+
+    }
     toJSON() {
         return {
             repeat: this.#repeat,
             lastPageOnly: this.#lastPageOnly,
             height: this.#height,
+            reserveHeight:this.#reserveHeight,
             margin: this.#margin,
             padding: this.#padding,
             rows: this.#rows

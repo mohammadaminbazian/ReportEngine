@@ -19,14 +19,9 @@
  */
 
 
-import { BaseDefinition }
-    from "./BaseDefinition.js";
-
-
+import { BaseDefinition } from "./BaseDefinition.js";
 
 export class TableDefinition extends BaseDefinition {
-
-
 
     #columns;
 
@@ -37,9 +32,6 @@ export class TableDefinition extends BaseDefinition {
     #style;
 
     #options;
-
-
-
 
     constructor({
 
@@ -89,7 +81,11 @@ export class TableDefinition extends BaseDefinition {
 
 
 
+    get headerHeight(){
 
+        return this.#header?.height ?? 0;
+
+    }
 
 
     //--------------------------------------------------

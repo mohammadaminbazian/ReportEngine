@@ -87,7 +87,7 @@ export class BindingResolver {
             lastPageOnly: footer.lastPageOnly,
 
             height: footer.height,
-
+            reserveHeight: footer.reserveHeight,
             margin: { ...footer.margin },
 
             padding: { ...footer.padding },

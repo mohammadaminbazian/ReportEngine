@@ -232,6 +232,7 @@ const footer = new FooterDefinition({
     repeat: true,/*true,false,*/
     lastPageOnly: false,
     height:15,
+    reserveHeight:15,
     rows: [
         {
             type: "signature",
@@ -254,6 +255,11 @@ const footer = new FooterDefinition({
 
 const table = new TableDefinition({
      showHeader:true,
+
+    header:{
+        height:9
+    },
+
     columns:[
 
         new ColumnDefinition({
